@@ -1,0 +1,4 @@
+sno,ngouid,email,name,city,success,exceptionmessage
+1,10030906,bhavya_narula@yahoo.co.in,Welfare Community,Bangalore,1,-
+2,10016705,aksharadwd@gmail.com,Akshara Foundation,Bangalore,1,-
+1,10030906,-,-,Bangalore,0,java.net.UnknownHostException: api.mailgun.net
