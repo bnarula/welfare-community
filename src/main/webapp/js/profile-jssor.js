@@ -4,7 +4,7 @@ jssor_photos_slider_init = function() {
     var jssor_photos_options = {
       $AutoPlay: false,
       
-      $SlideWidth: 210,
+      $SlideWidth: 150,
       $SlideSpacing: 3,
       $Cols: 4,
       $ArrowNavigatorOptions: {
@@ -41,7 +41,7 @@ jssor_events_slider_init = function() {
     var jssor_events_options = {
       $AutoPlay: false,
       
-      $SlideWidth: 210,
+      $SlideWidth: 150,
       $SlideSpacing: 6,
       $Cols: 5,
       $ArrowNavigatorOptions: {

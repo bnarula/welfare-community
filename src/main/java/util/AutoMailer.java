@@ -9,6 +9,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import config.DBConnection;
+import constants.ConfigConstants;
+import constants.Constants;
 
 public class AutoMailer {
 
@@ -17,7 +19,7 @@ public class AutoMailer {
 	private static String email; 
 	
 	public static void send(String city, int limit, int start){
-		File logFile = new File(Constants.ROOTPATH+"/logs/email-logs.csv");
+		File logFile = new File(ConfigConstants.get("ROOTPATH")+"/logs/email-logs.csv");
 		email = MailUtil.readMailHTML("autoMail");
 		try(FileOutputStream fosLogs = new FileOutputStream(logFile, true)){
 		try(Connection conn = DBConnection.getConnection()){

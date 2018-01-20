@@ -81,7 +81,7 @@
 
 <%@ include file="ngoHeader.jsp" %>
 					 
-		<s:if test="%{pageOwnerBean.listOfSlideshowPhotos.size()>0}">
+		<s:if test="%{pageOwnerBean.listOfCoverPhotos.size()>0}">
         <style>
         	
         	.parallax-window {
@@ -114,7 +114,7 @@
 	                       		
 				 
 		  	<div id="slides">
-				  <s:iterator value="pageOwnerBean.listOfSlideshowPhotos" >
+				  <s:iterator value="pageOwnerBean.listOfCoverPhotos" >
 			    	<div><img class='slideshow-imgs' src="<s:property value="url" />"  alt="<s:property value="url" />" /></div>
 				    </s:iterator>
 				</div>
@@ -179,8 +179,9 @@
 		     }
 		</script>
 	     <s:if test="%{pageOwnerBean.type!=\"auto\"}">
-     		<s:if test="%{photoList.size()!=0}">
+     		
 				<div class="row" style="margin-bottom:25px;" id="photos-row">
+					<s:if test="%{photoList.size()!=0}">
 						<a href="<s:url action='getPhotos'>
 					             	 <s:param name="from">ngo</s:param>
 					             	 <s:param name="pageOwnerCode"><s:property value="#session.pageOwnerBean.uid"/></s:param>
@@ -189,14 +190,14 @@
 			     			P H O T O S
 			     		</div>
 			     		</a>
-		     			<div class="col-md-11 col-sm-11 col-xs-11">
-			     			<div  id="jssor_photos" style="position: relative; top: 0px; left: 0px; height: 150px; overflow: hidden; visibility: hidden;">
+		     			<div class="col-md-5 col-sm-11 col-xs-11">
+			     			<div  id="jssor_photos" style="position: relative; top: 0px; left: 0px; height: 100px; overflow: hidden; visibility: hidden;">
 						        <!-- Loading Screen -->
 						        <div data-u="loading" style="position: absolute; top: 0px; left: 0px;">
 						            <div style="filter: alpha(opacity=70); opacity: 0.7; position: absolute; display: block; top: 0px; left: 0px; width: 100%; height: 100%;"></div>
 						            <div style="position:absolute;display:block;background:url('images/loading.gif') no-repeat center center;top:0px;left:0px;width:100%;height:100%;"></div>
 						        </div>
-						        <div data-u="slides" id="causes-slides" style="cursor: default; position: relative; top: 0px; left: 0px; width: 100%; height: 150px; overflow: hidden;">
+						        <div data-u="slides" id="causes-slides" style="cursor: default; position: relative; top: 0px; left: 0px; width: 100%; height: 100px; overflow: hidden;">
 						        	<s:iterator value="photoList">
 						    			<div class="thumbnail">
 						    				<a href="<s:property value="url.replace(\"_thumb\",\"\")" />" title="" data-gallery  >
@@ -217,10 +218,8 @@
 						        <span data-u="arrowright" class="jssora03r" style="top:0px;right:8px;width:55px;height:55px;" data-autocenter="2"></span>
 			       	</div>
 					    </div>
-			    </div>
-		    </s:if>
-		    <s:if test="%{pageOwnerBean.ngoEventBeanList.size()!=0}">	
-			     <div class="row" id="events-row">
+					     </s:if>
+					     <s:if test="%{pageOwnerBean.ngoEventBeanList.size()!=0}">	
 		     		<a href="<s:url action='getListOfEvents'><s:param name="pageOwnerCode">
 									<s:property value="#session.pageOwnerBean.uid"/></s:param></s:url>"
 								title="View Events">
@@ -228,14 +227,14 @@
 			     			E V E N T S
 		    </div>
 		     		</a>
-		     			<div class="col-md-11 col-sm-11 col-xs-11">
-			     			<div id="jssor_events" style="position: relative; top: 0px; left: 0px; height: 150px; overflow: hidden; visibility: hidden;">
+		     			<div class="col-md-5 col-sm-11 col-xs-11">
+			     			<div id="jssor_events" style="position: relative; top: 0px; left: 0px; height: 100px; overflow: hidden; visibility: hidden;">
 						        <!-- Loading Screen -->
 						        <div data-u="loading" style="position: absolute; top: 0px; left: 0px;">
 						            <div style="filter: alpha(opacity=70); opacity: 0.7; position: absolute; display: block; top: 0px; left: 0px; width: 100%; height: 100%;"></div>
 						            <div style="position:absolute;display:block;background:url('images/loading.gif') no-repeat center center;top:0px;left:0px;width:100%;height:100%;"></div>
 						        </div>
-						        <div data-u="slides" id="events-slides" style="cursor: default; position: relative; top: 0px; left: 0px; width: 100%; height: 150px; overflow: hidden;">
+						        <div data-u="slides" id="events-slides" style="cursor: default; position: relative; top: 0px; left: 0px; width: 100%; height: 100px; overflow: hidden;">
 						        	<s:iterator value="pageOwnerBean.ngoEventBeanList" var="indx">
 										<div style="background-image: url('<s:property value="imageURL"/>'); background-position:center; border:1px solid #dddddd; padding:2px;">
 											<a href="<s:url action='openEventPage'> 
@@ -278,8 +277,10 @@
 						        <span data-u="arrowright" class="jssora03r" style="top:0px;right:8px;width:55px;height:55px;" data-autocenter="2"></span>
 			    </div>
 		    </div>
-					</div>
 				</s:if>
+			    </div>
+		   
+		   
 				<s:if test="%{#session.owner && isFirstVisit()}">
 					<div class="modal fade" tabindex="-1" role="dialog" id="missingProfileModal">
 					  <div class="modal-dialog">
@@ -418,15 +419,15 @@
 														  </div>
 					  	<form role="form" id="newAboutUsForm" name="newAboutUsForm" enctype="multipart/form-data" type="post">
 					  	<div class="modal-body">
-														    <div class="row">
-							 <div class="col-md-6 col-xs-6 form-group">
-									    <label for="name">Title</label>
-									    <s:hidden name="s" value="-1"></s:hidden>
-									    <s:textfield cssClass="form-control" placeholder="Name" id="newAboutUsHeading"  name="newAboutUsHeading" value='' 
-									    required="" data-error="Required Field!!" maxlength="50"></s:textfield>
-									    <div class="help-block with-errors"></div>
-															   	</div>
-								</div>
+						    <div class="row">
+							 	<div class="col-md-6 col-xs-6 form-group">
+								    <label for="name">Title</label>
+								    <s:hidden name="s" value="-1"></s:hidden>
+								    <s:textfield cssClass="form-control" placeholder="Name" id="newAboutUsHeading"  name="newAboutUsHeading" value='' 
+								    required="" data-error="Required Field!!" maxlength="50"></s:textfield>
+								    <div class="help-block with-errors"></div>
+						   		</div>
+							</div>
 							 <div class="row">
 				
 								  <div class="col-md-12 col-xs-12 form-group">

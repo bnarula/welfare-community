@@ -18,18 +18,18 @@ import beans.EventBean;
 import beans.NgoBean;
 import beans.PhotoBean;
 import config.DBConnection;
+import constants.Constants;
+import constants.ResultConstants;
 import dao.AboutUsDao;
 import dao.AppreciationDao;
 import dao.NgoDao;
 import dao.PhotoDao;
-import util.Constants;
-import util.ResultConstants;
 
 
 public class ProfileAction extends ActionSupport implements SessionAware{
 	SessionMap<String,Object> sessionMap;
 	
-	private String pageOwnerCode;
+	private Integer pageOwnerCode;
 	private int noOfAppreciations;
 	private int noOfEvents;
 	private int noOfPhotos;
@@ -51,10 +51,10 @@ public class ProfileAction extends ActionSupport implements SessionAware{
 	private boolean firstVisit;
 	public String ajaxAppreciateAction()
 	{
-		String ato="";
+		Integer ato = 0;
 		String aby="";
 		ato = pageOwnerCode;
-		aby = (String)sessionMap.get("userCode");
+		aby = ""+sessionMap.get("userCode");
 		if(aby==null || "".equals(aby))
 			aby = appByEmail;
 		Connection con = null;
@@ -79,24 +79,24 @@ public class ProfileAction extends ActionSupport implements SessionAware{
 		return ResultConstants.SUCCESS;
 	}
 	public String home() throws SQLException{
-		setPageOwnerCode((String)sessionMap.get("userCode"));
+		setPageOwnerCode(Integer.parseInt(""+sessionMap.get("userCode")));
 		return ResultConstants.SUCCESS;
 	}
 	public String openProfile()
 	{
 		try(Connection conn = DBConnection.getConnection()) {
-			String ngoUid = null;
-			String userCode = (String)sessionMap.get("userCode");
+			Integer ngoUid = null;
+			Integer userCode = Integer.parseInt(""+sessionMap.get("userCode"));
 			if(""!=id && null!=id)
 			{
 				ngoUid = NgoDao.getNgoUidFromAlias(conn, id);
-				if(ngoUid==null || "".equals(ngoUid))
+				if(ngoUid == 0)
 					return ResultConstants.PAGE_NOT_FOUND;
 				setPageOwnerCode(ngoUid);
 				NgoBean sessionBean = NgoDao.getSessionNgoBeanFromId(conn, ngoUid);
     			sessionMap.put("pageOwnerBean", sessionBean);
     			sessionMap.put("isUserModified", false);
-				if(ngoUid.equals(sessionMap.get("userCode")+"")){
+				if(ngoUid.equals(Integer.parseInt("" + sessionMap.get("userCode")))){
 					sessionMap.put("guest", false);
 					sessionMap.put("owner", true);
 					sessionMap.put("visitor", false);
@@ -110,19 +110,16 @@ public class ProfileAction extends ActionSupport implements SessionAware{
 			selectables.add("all");
 			NgoBean ngoBean = new NgoBean();
 			
-			ngoBean.setListOfSlideshowPhotos(PhotoDao.getListOfPhotoURLs(conn, ngoUid, "Slideshow", "ngo", 0, 0, false));
-			boolean isOwner = ngoUid.equals((String)sessionMap.get("userCode"));
+			ngoBean.setListOfCoverPhotos(PhotoDao.getListOfCoverPhotos(conn, ngoUid, 0, 10));
+			boolean isOwner = ngoUid.equals(Integer.parseInt("" + sessionMap.get("userCode")));
 			List<EventBean> eventList = NgoDao.getListOfEvents(conn, ngoUid, isOwner, -1, -1, 0, 5);
 			ngoBean.setNgoEventBeanList(eventList);
 			setPageOwnerBean(ngoBean);
 			//NgoBean sessionNgoBean = NgoDao.getNgoBeanFromId(conn, ngoUid, selectables);
 			//sessionMap.put("pageOwnerBean", ngoBean);
 			setNoOfEvents(1);
-			setNoOfPhotos(NgoDao.getCountOfSlideshowPhotos(conn, ngoUid));
-			
-			
-			
-			photoList = PhotoDao.getListOfPhotoURLs(conn, ngoUid, "all", "ngo", 0, 20, true);
+			setNoOfPhotos(NgoDao.getCountOfCoverPhotos(conn, ngoUid));
+			photoList = PhotoDao.getListOfPhotos(conn, ngoUid, "ngo", 0, 20, true);
 			if(!sessionMap.containsKey("firstVisit") || (boolean)sessionMap.get("firstVisit")){
 				sessionMap.put("firstVisit", false);
 				setFirstVisit(true);
@@ -195,10 +192,10 @@ public class ProfileAction extends ActionSupport implements SessionAware{
 		this.sessionMap=(SessionMap)sessionMap;
 	}
 	
-	public String getPageOwnerCode() {
+	public Integer getPageOwnerCode() {
 		return pageOwnerCode;
 	}
-	public void setPageOwnerCode(String pageOwnerCode) {
+	public void setPageOwnerCode(Integer pageOwnerCode) {
 		this.pageOwnerCode = pageOwnerCode;
 	}
 	public int getNoOfAppreciations() {

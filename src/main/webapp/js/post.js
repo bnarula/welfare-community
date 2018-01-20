@@ -224,7 +224,8 @@ function createNewAboutUsDiv(jsonResponse, append, isOwner){
 	var headP = $("<p />", {"id" : auCode+"Heading",
 							"style" : "text-align:center; font-family:'Roboto',UILanguageFont,Arial,sans-serif; font-weight:600",
 							"text" : auHeading}).appendTo(headDivC2);
-	var imageP =  $("<p />", {"class" : "vignette col-md-12",
+	var imageP =  $("<p />", {"id" : auCode+"Image",
+								"class" : "vignette col-md-12",
 								"style" : "background-image: url("+auImage+"); height:200px;"}).appendTo(imageDiv);
 	var contentP = $("<p />", {"id" : auCode+"Content",
 								"style" : "text-align:center; padding: 0 8px; font-size:13px;",

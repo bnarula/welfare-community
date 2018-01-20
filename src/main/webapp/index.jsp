@@ -146,7 +146,7 @@
 							</div>
 						</div>
 						<div class="row" style="margin-top: 20px;">
-							<script src='/js/alert.js'></script>
+							<script src='./js/alert.js'></script>
 						<s:if test="hasActionErrors()">
 			                <s:actionerror/>
 				                <div id="alert-error-login">

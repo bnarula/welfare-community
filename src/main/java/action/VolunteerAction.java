@@ -13,18 +13,20 @@ import com.opensymphony.xwork2.ActionSupport;
 
 import beans.EventBean;
 import beans.NgoBean;
+import beans.PhotoBean;
 import beans.VolunteerBean;
 import config.DBConnection;
+import constants.ConfigConstants;
+import constants.Constants;
+import constants.ResultConstants;
 import dao.EventDao;
 import dao.NgoDao;
 import dao.PhotoDao;
 import dao.VerificationDao;
 import dao.VolunteerDao;
 import security.SecurityUtil;
-import util.Constants;
 import util.ImageUtil;
 import util.MailUtil;
-import util.ResultConstants;
 
 public class VolunteerAction extends ActionSupport {
 	private VolunteerBean volunteerBean;
@@ -34,14 +36,15 @@ public class VolunteerAction extends ActionSupport {
 	private File imgFile;
 	private String imgFileContentType;
 	private String imgFileFileName;
-	
 	public String saveVolunteerInfo(){
 		Connection conn =  null;
 		try {
 			conn = DBConnection.getConnection();
 			conn.setAutoCommit(false);
-			int pId = saveImage(conn, volunteerBean.getEmail(), volunteerBean.getGender());
-			String vId = VolunteerDao.createNew(conn, volunteerBean, pId);
+			
+			Integer vId = VolunteerDao.createNew(conn, volunteerBean);
+			int pId = saveImage(conn, vId, volunteerBean.getEmail(), volunteerBean.getGender());
+			VolunteerDao.updatePhoto(conn, vId, pId);
 			if(VolunteerDao.newApplication(conn, eventId, vId))
 			{
 				addActionMessage("Application sent, please check your email for further communications!");
@@ -50,7 +53,7 @@ public class VolunteerAction extends ActionSupport {
 				String passCode = SecurityUtil.encrypt(""+randCode);
 				passCode = passCode.substring(0,8);
 				VerificationDao.generateNewPasscode(conn, vId, passCode, "v");
-				strEmail = strEmail.replaceAll("%#verificationLink#%", Constants.ROOTURL+"verifyVolunteer.action?userCode="+vId+"&eventId="+eventId+"&passcode="+passCode);
+				strEmail = strEmail.replaceAll("%#verificationLink#%", ConfigConstants.get("ROOTURL")+"verifyVolunteer.action?userCode="+vId+"&eventId="+eventId+"&passcode="+passCode);
 				strEmail = strEmail.replaceAll("%#volunteerName#%",volunteerBean.getName());
 				EventBean eventBean  =  EventDao.getEventBean(conn, eventId);
 				strEmail = strEmail.replaceAll("%#eventName#%", eventBean.getName());
@@ -63,7 +66,7 @@ public class VolunteerAction extends ActionSupport {
 				strEmail = strEmail.replaceAll("%#ngoEmail#%", ngoBean.getNgoEmail());
 				strEmail = strEmail.replaceAll("%#ngoPhone#%", ngoBean.getNgoPhone());
 				strEmail = strEmail.replaceAll("%#ngoName#%", 
-						"<a href=\""+Constants.ROOTURL+ngoBean.getAlias()+"\" title=\""+ngoBean.getNgoName()+"\">"+ngoBean.getNgoName()+"</a>");
+						"<a href=\""+ConfigConstants.get("ROOTURL")+ngoBean.getAlias()+"\" title=\""+ngoBean.getNgoName()+"\">"+ngoBean.getNgoName()+"</a>");
 				MailUtil.sendMimeMessage(volunteerBean.getEmail(), "Volunteer Application", strEmail);
 				conn.commit();
 				return ResultConstants.SUCCESS;
@@ -99,16 +102,17 @@ public class VolunteerAction extends ActionSupport {
 		}
 		return ResultConstants.FAILURE;
 	}
-	private int saveImage(Connection con, String id, String gender) throws SQLException {
+	private int saveImage(Connection con, Integer id, String email, String gender) throws SQLException {
 		int pId = 0;
 		pId = gender.equalsIgnoreCase("female")?3:2;
 		try {
 			String filePath = ImageUtil.getDestinationPath("volunteer", null, null);
-			String destPath = Constants.IMAGES_ROOTPATH+filePath;
-			String pFPath = Constants.DB_IMAGES_ROOTPATH+filePath;
+			String destPath = ConfigConstants.get("IMAGES_ROOTPATH")+filePath;
+			String pFPath = ConfigConstants.get("IMAGES_ROOTPATH")+filePath;
 			String pFExt = ImageUtil.getExtension(imgFileContentType);
-			ImageUtil.saveImage(imgFile, id, destPath, pFExt);
-			pId = PhotoDao.createNew(con, id, pFPath, pFExt, "volunteer", id);
+			ImageUtil.saveImage(imgFile, email, destPath, pFExt);
+			/*PhotoBean vPhoto = new PhotoBean(0, "", url, thumbUrl, fileName, createdAt, category, id);
+			pId = PhotoDao.create(con, email, pFPath, pFExt, "volunteer", id);*/
 		} catch (NullPointerException npe) {
 			
 		}

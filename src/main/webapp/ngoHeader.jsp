@@ -240,7 +240,7 @@ $( document ).ready( function ()	 {
 					</div>
 					<div class="pull-right col-md-6 col-sm-6 col-xs-12">
 						<p class="ellipsis" style="letter-spacing:1.7px;" id="menu-item-alias">
-							<i class="fa fa-globe" style="color:black"></i>&nbsp;https://welfarecommunity.org/<s:property value="#session.pageOwnerBean.alias" />
+							<i class="fa fa-globe" style="color:black"></i>&nbsp;http://welfarecommunity.org/<s:property value="#session.pageOwnerBean.alias" />
 						</p>
 						<p class="ellipsis cityList" style="letter-spacing:1.7px;">
 						<i class="fa fa-map-marker" style="color:black"></i>
@@ -294,7 +294,7 @@ $( document ).ready( function ()	 {
 	</div>
 	<script>
 		var boolSlideshow = false;
-		<s:if test="%{pageOwnerBean.listOfSlideshowPhotos.size()>0}">
+		<s:if test="%{pageOwnerBean.listOfCoverPhotos.size()>0}">
 			boolSlideshow = true;
 		</s:if>
 		if	(boolSlideshow){

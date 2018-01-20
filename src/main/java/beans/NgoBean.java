@@ -7,7 +7,7 @@ import java.util.List;
 public class NgoBean {
 
 	private String alias;
-	private String uid;
+	private Integer uid;
 	private String ngoEmail;
 	private String ngoName;
 	private String ngoDescription;
@@ -20,13 +20,13 @@ public class NgoBean {
 	private List<AddressBean> ngoAddressBeanList;
 	private List<CauseBean> ngoCauseBeanList;
 	private List<EventBean> ngoEventBeanList;
-	private List<PhotoBean> listOfSlideshowPhotos = new ArrayList<PhotoBean>();
+	private List<PhotoBean> listOfCoverPhotos = new ArrayList<PhotoBean>();
 	public NgoBean()
 	{
 		
 	}
 	
-	public NgoBean(String ngoUid, String ngoEmail, String ngoName, String ngoDescription,String ngoLogoPId,  String ngoPhone, List<AddressBean> ngoAddressBeanList, List<CauseBean> ngoCauseBeanList, String alias) {
+	public NgoBean(Integer ngoUid, String ngoEmail, String ngoName, String ngoDescription,String ngoLogoPId,  String ngoPhone, List<AddressBean> ngoAddressBeanList, List<CauseBean> ngoCauseBeanList, String alias) {
 		super();
 		this.uid = ngoUid;
 		this.ngoEmail = ngoEmail;
@@ -121,19 +121,19 @@ public class NgoBean {
 		this.alias = alias;
 	}
 
-	public List<PhotoBean> getListOfSlideshowPhotos() {
-		return listOfSlideshowPhotos;
+	public List<PhotoBean> getListOfCoverPhotos() {
+		return listOfCoverPhotos;
 	}
 
-	public void setListOfSlideshowPhotos(List<PhotoBean> listOfSlideshowPhotos) {
-		this.listOfSlideshowPhotos = listOfSlideshowPhotos;
+	public void setListOfCoverPhotos(List<PhotoBean> listOfCoverPhotos) {
+		this.listOfCoverPhotos = listOfCoverPhotos;
 	}
 
-	public String getUid() {
+	public Integer getUid() {
 		return uid;
 	}
 
-	public void setUid(String uid) {
+	public void setUid(Integer uid) {
 		this.uid = uid;
 	}
 

@@ -80,10 +80,10 @@
 					aboutUsArray.forEach(function(item, index) {
 						var gridItem = imageElement(item, <s:property value="#session.owner" />);
 						var $grid = $('.grid').masonry({
-		  itemSelector: '.grid-item',
-							  percentPosition: true,
-							  columnWidth: '.grid-sizer'
-		});
+	  							itemSelector: '.grid-item',
+							  	percentPosition: true,
+							  	columnWidth: '.grid-sizer'
+						});
 						gridItem.imagesLoaded( function() {
 							$grid.masonry().append( gridItem ).masonry('appended' , gridItem );
 						});  
@@ -92,7 +92,7 @@
 						scene.remove();
 						$("#loader").css('display', 'none');
 					} 
-		});
+				});
 				scene.update(); 
 				$("#loader").removeClass("active");
 			}

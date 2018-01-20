@@ -3,7 +3,7 @@ package beans;
 
 public class VolunteerBean {
 	
-	private String id;
+	private Integer id;
 	private String name;
 	private String email;
 	private Integer age;
@@ -13,7 +13,7 @@ public class VolunteerBean {
 	
 	public VolunteerBean(){}
 	
-	public VolunteerBean(String id, String name, String email, String contact, Integer age,  String gender, String photoUrl) {
+	public VolunteerBean(Integer id, String name, String email, String contact, Integer age,  String gender, String photoUrl) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -24,10 +24,10 @@ public class VolunteerBean {
 		this.photoUrl = photoUrl;
 	}
 	
-	public String getId() {
+	public Integer getId() {
 		return id;
 	}
-	public void setId(String id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 	public String getName() {

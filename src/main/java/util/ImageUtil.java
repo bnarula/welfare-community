@@ -44,7 +44,7 @@ public class ImageUtil {
 		saveImage(sourceFile, name, destPath, ext);
 		return true;
 	}
-	public static String getDestinationPath(String category, String id, String secId){
+	public static String getDestinationPath(String category, Integer id, Integer secId){
 		if(category.startsWith("ngo"))
 			return "/"+id+"/";
 		if(category.startsWith("event"))

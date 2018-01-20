@@ -1,27 +1,33 @@
 package action;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.dispatcher.SessionMap;
 import org.apache.struts2.interceptor.SessionAware;
+import org.apache.struts2.json.JSONException;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.google.gson.Gson;
 import com.opensymphony.xwork2.ActionSupport;
 
 import beans.EventBean;
 import beans.PhotoBean;
 import config.DBConnection;
+import constants.ConfigConstants;
+import constants.Constants;
+import constants.ResultConstants;
 import dao.EventDao;
 import dao.PhotoDao;
-import util.Constants;
-import util.ImageUtil;
-import util.ResultConstants;
+import util.CloudinaryUtils;
 
 public class PhotosAction extends ActionSupport implements SessionAware {
 
@@ -38,14 +44,15 @@ public class PhotosAction extends ActionSupport implements SessionAware {
 	private String[] removeFromSlideshow;
 	private String deletePhotosIdArray;
 	private String album = "All";
-	private String pageOwnerCode;
+	private Integer pageOwnerCode;
 	private String ajaxResponseDummyMsg; 
 	private String imgPageNo = "0";
 	private boolean endReached;
+	 
+	private PhotoBean[] upPhotos;
 	
 	//private String newImgCloudinaryUrl;
 	
-
 
 
 	public String openPhotosPage(){
@@ -75,26 +82,29 @@ public class PhotosAction extends ActionSupport implements SessionAware {
 		return ResultConstants.SUCCESS;
 	}
 	public String listPhotosAction() {
-		String ngoUid = null;
+		
+		Integer ngoUid = null;
 		ngoUid = getPageOwnerCode();
 		int pageNo = Integer.parseInt(imgPageNo);
 		int count = 8;
 		try(Connection con = DBConnection.getConnection()) {
 			if(getFrom().equals("ngo"))
 			{
-				listOfPhotos = PhotoDao.getListOfPhotoURLs(con, ngoUid, album, getFrom(), pageNo*count, count, true);
+				if(album.equalsIgnoreCase("Slideshow"))
+				{
+					listOfPhotos = PhotoDao.getListOfCoverPhotos(con, ngoUid, pageNo*count, count);
+				} else {
+					listOfPhotos = PhotoDao.getListOfPhotos(con, ngoUid, getFrom(), pageNo*count, count, true);
+				}
 			}
 			if(getFrom().equals("event"))
 			{
-				listOfPhotos = PhotoDao.getListOfPhotoURLs(con, ""+eventId ,"all", getFrom(), pageNo*count, count, true);
+				listOfPhotos = PhotoDao.getListOfPhotos(con, eventId , getFrom(), pageNo*count, count, true);
 			}
-			if(getFrom().equals("slideshow"))
+			
+			if(getFrom().equals("wall"))
 			{
-				listOfPhotos = PhotoDao.getListOfPhotoURLs(con, ngoUid,"slideshow", "ngo", pageNo*count, count, true);
-			}
-			if(getFrom().equals("all"))
-			{
-				listOfPhotos = PhotoDao.getListOfPhotoURLs(con, "","all", "all", pageNo*count, count, true);
+				listOfPhotos = PhotoDao.getListOfPhotos(con, 0, "wall", pageNo*count, count, true);
 			}
 			setEndReached(listOfPhotos.size() == 0);
 		} catch (SQLException e) {
@@ -105,72 +115,67 @@ public class PhotosAction extends ActionSupport implements SessionAware {
 	}
 
 	/*public String addNewPhoto(){
-		String ngoUid = (String)sessionMap.get("userCode");
+		String ngoUid = ""+sessionMap.get("userCode");
 		
 	}*/
-	public String uploadPhotosAction()
+	public String uploadPhotosAction() throws JSONException, JsonParseException, IOException
 	{
-		String destPath="", owner = "", category ="";
-		String ngoUid = (String)sessionMap.get("userCode");
+		Integer ngoUid = Integer.parseInt(""+sessionMap.get("userCode"));
 		
-		String  pFPath = "";
+		Integer owner = 1;
+		String cat = "";
 		if(from.equals("ngo"))
 		{
-			String filePath = ImageUtil.getDestinationPath("ngo", ngoUid, null);
-			destPath = Constants.IMAGES_ROOTPATH+filePath;
-			pFPath=Constants.DB_IMAGES_ROOTPATH+filePath;
-			owner = "'"+ngoUid+"'";
-			category = "ngoOthers";
+			owner = ngoUid;
+			cat = "ngoOthers";
 		}
 		if(from.equals("event"))
 		{
-			String filePath = ImageUtil.getDestinationPath("event", ngoUid, ""+eventId);
-			destPath = Constants.IMAGES_ROOTPATH+filePath;
-			pFPath = Constants.DB_IMAGES_ROOTPATH+filePath;
-			owner = "'"+eventId+"'";
-			category = "event";
+			owner = eventId;
+			cat = "event";
 		}
-	    try{
-	    	if(null!=imgFile)
-			{
-				Connection con = DBConnection.getConnection();
-		    	for (int i = 0; i < imgFile.length; i++) {
-			     	imgFileFileName[i]=imgFileFileName[i].substring(0,imgFileFileName[i].length()-4);
-			     	ImageUtil.saveImage(imgFile[i], imgFileFileName[i], destPath, ImageUtil.getExtension(imgFileContentType[i]));
-					Statement stmt = con.createStatement();
-					stmt.execute("insert into photo_table (p_file_name, p_file_path, p_file_extension, p_category, p_owner_id) "
-							+ ""
-							+ "values ('"+imgFileFileName[i]+"','"+pFPath+"','"+ImageUtil.getExtension(imgFileContentType[i])+"','"+category+"',"+owner+")");
-					stmt.close();
-		    	}
-		    	con.close();
-			}
-	      }
-	    catch(SQLException e)
-	    {
-	    	 e.printStackTrace();
-	    }
-        catch(NullPointerException npe)
-	    {
-	    	  npe.printStackTrace();
-	    }
-		return ResultConstants.SUCCESS;
-	}
-	public String ajaxDeletePhotoAction()
-	{
 		try(Connection con = DBConnection.getConnection()) {
-			String[] arr = deletePhotosIdArray.split(",");
-			PhotoDao.deletePhotos(con, arr);
-			ajaxResponseDummyMsg = "Successfully deleted!";
+			HttpServletRequest request = ServletActionContext.getRequest();
+			String upPhotos = request.getParameter("upPhotos");
+			Gson g = new Gson();
+			PhotoBean[] pbArr = g.fromJson(upPhotos, PhotoBean[].class);
+			for(int i = 0; i<pbArr.length; i++){
+				PhotoBean upPhoto = pbArr[i];
+				upPhoto.setOwnerId(owner);
+				upPhoto.setCategory(cat);
+				PhotoDao.create(con, upPhoto);
+			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return ResultConstants.SUCCESS;
 	}
-	public String ajaxAddToSlideshowAction(){
+	public String ajaxDeletePhotoAction()
+	{
+		try(Connection con = DBConnection.getConnection()) {
+			con.setAutoCommit(false);
+			String[] arr = deletePhotosIdArray.split(",");
+			arr = PhotoDao.getPublicIds(con, arr);
+			PhotoDao.deletePhotos(con, arr);
+			try {
+				CloudinaryUtils.deleteImages(arr, null);
+			} catch (Exception e) {
+				ajaxResponseDummyMsg = "Deletion Failed";
+				con.rollback();
+			}
+			con.commit();
+			ajaxResponseDummyMsg = "Successfully deleted!";
+			con.setAutoCommit(true);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ResultConstants.SUCCESS;
+	}
+	public String ajaxAddToCoverAction(){
 		try(Connection conn = DBConnection.getConnection()) {
-			PhotoDao.addToSlideshow(conn, addToSlideshow, (String)sessionMap.get("userCode"));
+			PhotoDao.addToCover(conn, addToSlideshow, ""+sessionMap.get("userCode"));
 			ajaxResponseDummyMsg = "Selected images are added to your Profile Slideshow!";
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -178,9 +183,10 @@ public class PhotosAction extends ActionSupport implements SessionAware {
 		}
 		return ResultConstants.SUCCESS;
 	}
-	public String ajaxRemoveFromSlideshowAction(){
+
+	public String ajaxRemoveFromCoverAction(){
 		try(Connection conn = DBConnection.getConnection()) {
-			PhotoDao.removeFromSlideshow(conn, removeFromSlideshow, (String)sessionMap.get("userCode"));
+			PhotoDao.removeFromCover(conn, removeFromSlideshow, ""+sessionMap.get("userCode"));
 			ajaxResponseDummyMsg = "Selected images are removed from your Profile Slideshow!";
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -190,15 +196,15 @@ public class PhotosAction extends ActionSupport implements SessionAware {
 	}
 	
 
-	public String getPageOwnerCode() {
+	public Integer getPageOwnerCode() {
 		return pageOwnerCode;
 	}
 
-	public void setPageOwnerCode(String pageOwnerCode) {
+	public void setPageOwnerCode(Integer pageOwnerCode) {
 		this.pageOwnerCode = pageOwnerCode;
 	}
 	public static String getDestinationPath(String category, String ngoUid, String eventId){
-		String rootpath = Constants.ROOTPATH+"/images/";
+		String rootpath = ConfigConstants.get("ROOTPATH")+"/images/";
 		return category.startsWith("ngo")?rootpath+ngoUid+"/":category.startsWith("event")?rootpath+ngoUid+"/"+eventId:rootpath+"volunteers"+"/";
 	}
 	
@@ -320,5 +326,13 @@ public class PhotosAction extends ActionSupport implements SessionAware {
 	}
 	public void setAjaxResponseDummyMsg(String ajaxResponseDummyMsg) {
 		this.ajaxResponseDummyMsg = ajaxResponseDummyMsg;
+	}
+
+	public PhotoBean[] getUpPhoto() {
+		return upPhotos;
+	}
+
+	public void setUpPhoto(PhotoBean[] upPhotos) {
+		this.upPhotos = upPhotos;
 	}
 }

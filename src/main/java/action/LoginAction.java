@@ -12,15 +12,14 @@ import com.opensymphony.xwork2.ActionSupport;
 import beans.NgoBean;
 import beans.UserBean;
 import config.DBConnection;
+import constants.Constants;
+import constants.ResultConstants;
 import dao.NgoDao;
 import dao.UserDao;
-import security.SecurityUtil;
-import util.ResultConstants;
-import util.Constants;
 
 public class LoginAction extends ActionSupport implements SessionAware{
 	SessionMap<String,Object> sessionMap;
-	private String pageOwnerCode;
+	private Integer pageOwnerCode;
 	private UserBean loginUserBean;
 	public UserBean getLoginUserBean() {
 		return loginUserBean;
@@ -49,7 +48,7 @@ public class LoginAction extends ActionSupport implements SessionAware{
 				addActionError("There is no account registered with this email id!");
 			} 
 			else {
-				String uid = response;
+				Integer uid = Integer.parseInt(response);
 			    sessionMap.put("userCode", uid);
 			    setPageOwnerCode(uid);
 			    ArrayList selectables = new ArrayList();
@@ -75,11 +74,11 @@ public class LoginAction extends ActionSupport implements SessionAware{
 	    return ResultConstants.SUCCESS;  
 	}
 
-	public String getPageOwnerCode() {
+	public Integer getPageOwnerCode() {
 		return pageOwnerCode;
 	}
 
-	public void setPageOwnerCode(String pageOwnerCode) {
+	public void setPageOwnerCode(Integer pageOwnerCode) {
 		this.pageOwnerCode = pageOwnerCode;
 	}
 

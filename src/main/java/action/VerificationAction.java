@@ -8,17 +8,18 @@ import com.opensymphony.xwork2.ActionSupport;
 
 import beans.NgoBean;
 import config.DBConnection;
+import constants.ConfigConstants;
+import constants.Constants;
+import constants.ResultConstants;
 import dao.EventDao;
 import dao.NgoDao;
 import dao.UserDao;
 import dao.VerificationDao;
 import security.SecurityUtil;
-import util.Constants;
 import util.MailUtil;
-import util.ResultConstants;
 
 public class VerificationAction  extends ActionSupport {
-	private String userCode;
+	private Integer userCode;
 	private String passcode;
 	private String email;
 	private String password;
@@ -55,7 +56,7 @@ public class VerificationAction  extends ActionSupport {
 			if(result.equals("success"))
 			{
 				//UserDao.setUserAsVerified(conn, userCode);
-				EventDao.setApplicantStatus(conn, userCode, eventId, Constants.APPLICATION_STATUS_WAITING);
+				EventDao.setApplicantStatus(conn, ""+userCode, eventId, Constants.APPLICATION_STATUS_WAITING);
 				addActionMessage("Verification Successfull, You will be notified via email once your profile is selected. ");
 			}
 			else if(result.equals("passcodeExpired"))
@@ -102,19 +103,19 @@ public class VerificationAction  extends ActionSupport {
 		
 		return VerificationDao.validatePasscode(con, userCode, passcode, "fg");
 	}
-	public static String sendVerificationMail(String ngoUid, String name, String email){
+	public static String sendVerificationMail(Integer ngoUid, String name, String email){
 		String verEmail = MailUtil.readMailHTML("welcomeNGO");
 		verEmail = verEmail.replaceAll("%#ngoName#%", name);
 		int randCode = (int)(Math.random()*1000000);
 		String passCode = SecurityUtil.encrypt(""+randCode);
 		passCode = passCode.substring(0,8);
-		verEmail = verEmail.replaceAll("%#verificationLink#%", Constants.ROOTURL+"verifyNGO.action?userCode="+ngoUid+"&passcode="+passCode);
-		verEmail = verEmail.replaceAll("%#resendLink#%", Constants.ROOTURL+"resendVerificationMail.action?userCode="+ngoUid);
+		verEmail = verEmail.replaceAll("%#verificationLink#%", ConfigConstants.get("ROOTPATH")+"verifyNGO.action?userCode="+ngoUid+"&passcode="+passCode);
+		verEmail = verEmail.replaceAll("%#resendLink#%", ConfigConstants.get("ROOTURL")+"resendVerificationMail.action?userCode="+ngoUid);
 		MailUtil.sendMimeMessage(email, "Verify your account with Welfare Community", verEmail);
 		return passCode;
 		
 	}
-	public static String sendForgotPasswordMail(String ngoUid, String name, String email){
+	public static String sendForgotPasswordMail(Integer ngoUid, String name, String email){
 		String verEmail = MailUtil.readMailHTML("forgotPassword");
 		verEmail = verEmail.replaceAll("%#ngoName#%", name);
 		int randCode = (int)(Math.random()*1000000);
@@ -154,7 +155,7 @@ public class VerificationAction  extends ActionSupport {
 		selectables.add(Constants.NGOBEAN_NAME);
 		if(email!=null && !"".equals(email)){
 			try(Connection con = DBConnection.getConnection()) {
-				String uid = UserDao.getUserId(con, email);
+				Integer uid = UserDao.getUserId(con, email);
 				NgoBean ngoBean = NgoDao.getNgoBeanFromId(con, uid, selectables);
 				if(ngoBean.getUid().equals("")){
 					responseString = "Account does not exists with this email";
@@ -176,10 +177,10 @@ public class VerificationAction  extends ActionSupport {
 		
 		
 	}
-	public String getUserCode() {
+	public Integer getUserCode() {
 		return userCode;
 	}
-	public void setUserCode(String userCode) {
+	public void setUserCode(Integer userCode) {
 		this.userCode = userCode;
 	}
 	public String getPasscode() {

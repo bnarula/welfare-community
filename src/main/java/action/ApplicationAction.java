@@ -9,19 +9,17 @@ import beans.EventBean;
 import beans.NgoBean;
 import beans.VolunteerBean;
 import config.DBConnection;
+import constants.Constants;
+import constants.ResultConstants;
 import dao.EventDao;
 import dao.NgoDao;
-import dao.VerificationDao;
 import dao.VolunteerDao;
-import security.SecurityUtil;
-import util.Constants;
 import util.MailUtil;
-import util.ResultConstants;
 
 public class ApplicationAction {
 	private EventBean eventBean;
 	private int eventId;
-	private String pageOwnerCode;
+	private Integer pageOwnerCode;
 	private List<VolunteerBean> volAppList = new ArrayList<VolunteerBean>();
 	private String vIdArr;
 	private String appType = Constants.APPLICATION_STATUS_WAITING;
@@ -55,7 +53,7 @@ public class ApplicationAction {
 			eventBean = EventDao.getEventBean(conn, eventId, selectables);
 			String vId[] = vIdArr.split(",");
 			for(String v : vId){
-				VolunteerBean vb = VolunteerDao.getVolunteerBean(conn, v);
+				VolunteerBean vb = VolunteerDao.getVolunteerBean(conn, Integer.parseInt(v));
 				String strEmail = MailUtil.readMailHTML("appAccept");
 				strEmail = strEmail.replaceAll("%#volunteerName#%",vb.getName());
 				strEmail = strEmail.replaceAll("%#eventName#%", eventBean.getName());
@@ -87,7 +85,7 @@ public class ApplicationAction {
 			eventBean = EventDao.getEventBean(conn, eventId, selectables);
 			String vId[] = vIdArr.split(",");
 			for(String v : vId){
-				VolunteerBean vb = VolunteerDao.getVolunteerBean(conn, v);
+				VolunteerBean vb = VolunteerDao.getVolunteerBean(conn, Integer.parseInt(v));
 				String strEmail = MailUtil.readMailHTML("appReject");
 				strEmail = strEmail.replaceAll("%#volunteerName#%",vb.getName());
 				strEmail = strEmail.replaceAll("%#eventName#%", eventBean.getName());
@@ -119,11 +117,11 @@ public class ApplicationAction {
 		this.eventId = eventId;
 	}
 
-	public String getPageOwnerCode() {
+	public Integer getPageOwnerCode() {
 		return pageOwnerCode;
 	}
 
-	public void setPageOwnerCode(String pageOwnerCode) {
+	public void setPageOwnerCode(Integer pageOwnerCode) {
 		this.pageOwnerCode = pageOwnerCode;
 	}
 

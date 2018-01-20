@@ -294,97 +294,115 @@ $(document).ready(function() {
 		<hr></hr>
 		<div class="row">
 			<div class="col-md-6">
-				<ul class="list-group">
+				
 					<div class="row">
-						<li class="list-group-item active">
-							Edit Profile 
-						</li>
-						<li class="list-group-item">
-							<a href="<s:url action='editProfile'></s:url>" title="Edit Profile">Edit your Profile</a><br>
-							<p style="font-size:smaller;">(name, description, contact..)</p>
-						</li>
+						<ul class="list-group">
+							<li class="list-group-item active">
+								Edit Profile 
+							</li>
+							<li class="list-group-item">
+								<a href="<s:url action='editProfile'></s:url>" title="Edit Profile">Edit your Profile</a><br>
+								<p style="font-size:smaller;">(name, description, contact..)</p>
+							</li>
+						</ul>
 					</div>
 					<div class="row">
-						<li class="list-group-item active">
-								Change Password
-						</li>
-						<li class="list-group-item">
-							<form method="post" action="updatePassword" role="form" id="passwordChangeForm">
-								<div class="col-md-12 col-xs-12 form-group">
-									<label for="password">Old Password</label>
-								    <s:password cssClass="form-control" id="oldPassword" placeholder="Password" name="oldPassword" 
-								    required="" data-error="Required Field!!"></s:password>
-								    <div class="help-block with-errors"></div>
-							    </div>
-								<div class="col-md-12 col-xs-12 form-group">
-									<label for="password">New Password</label>
-								    <s:password cssClass="form-control" id="newPassword" placeholder="Password" name="newPassword" 
-								    required="" data-error="Required Field!!" data-minlength-error="Minimum 6 characters are required." data-minlength="6" maxlength="12"></s:password>
-								    <div class="help-block with-errors"></div>
-							    </div>
-								<div class="col-md-12 col-xs-12 form-group">
-									<label for="repassword">Retype new Password</label>
-								    <s:password cssClass="form-control" id="repassword" placeholder="Retype password" 
-								    value="" required="" data-error="Required Field!!" data-match="#newPassword" data-match-error="Both Password fields do not match!"
-								    data-minlength-error="Minimum 6 characters are required." data-minlength="6" maxlength="12"></s:password>
-								    <div class="help-block with-errors"></div>
-							    </div>
-							    <s:submit cssClass="btn btn-default" type="submit" name="submit" value="Submit" ></s:submit>
-							</form>
-							<script>
-								$('#passwordChangeForm').validator();
-							</script>
-						</li>
+						<ul class="list-group">
+							<li class="list-group-item active">
+									Change Password
+							</li>
+							<li class="list-group-item">
+								<form method="post" action="updatePassword" role="form" id="passwordChangeForm">
+									<div class="col-md-12 col-xs-12 form-group">
+										<label for="password">Old Password</label>
+									    <s:password cssClass="form-control" id="oldPassword" placeholder="Password" name="oldPassword" 
+									    required="" data-error="Required Field!!"></s:password>
+									    <div class="help-block with-errors"></div>
+								    </div>
+									<div class="col-md-12 col-xs-12 form-group">
+										<label for="password">New Password</label>
+									    <s:password cssClass="form-control" id="newPassword" placeholder="Password" name="newPassword" 
+									    required="" data-error="Required Field!!" data-minlength-error="Minimum 6 characters are required." data-minlength="6" maxlength="12"></s:password>
+									    <div class="help-block with-errors"></div>
+								    </div>
+									<div class="col-md-12 col-xs-12 form-group">
+										<label for="repassword">Retype new Password</label>
+									    <s:password cssClass="form-control" id="repassword" placeholder="Retype password" 
+									    value="" required="" data-error="Required Field!!" data-match="#newPassword" data-match-error="Both Password fields do not match!"
+									    data-minlength-error="Minimum 6 characters are required." data-minlength="6" maxlength="12"></s:password>
+									    <div class="help-block with-errors"></div>
+								    </div>
+								    <s:submit cssClass="btn btn-default" type="submit" name="submit" value="Submit" ></s:submit>
+								</form>
+								<script>
+									$('#passwordChangeForm').validator();
+								</script>
+							</li>
+						</ul>
 					</div>
 					<div class="row">
-						<li class="list-group-item active">
-							Change your logo image
-						</li>
-						<li class="list-group-item">
-							<form enctype="multipart/form-data" method="post" action="updateNgoLogo" id="logoForm">
-								
-								<div class="col-md-12 col-xs-12 form-group">
-								  	<label for="element_6">Logo </label>
-									<s:file id="element_6" name="imgFile" cssClass="form-control" 
-									required=""  data-filesize="1048576" data-img-file-validator = "imgFileValidator">
-									</s:file>
-									<div class="help-block">Max file size permitted is 1MB (.gif /.jpeg /.png /.bmp)</div>
-								</div>
-								<button type="submit" name="Update" class="btn btn-default">Update</button>
-							</form>
-							<script>
-							$(document).ready(function() {
-								$('form').validator({
-								 custom: {
-									  imgFileValidator : function($el){
-											  var result = false;
-										  		if($el[0].value){
-									  			 	var fileSizeMax = $el.data('filesize');
-												    var fileSizeCheck = $el[0].files[0].size>fileSizeMax;
-												    var fileTypeCheck = $el[0].files[0].type.startsWith("image");
-									  					if ($el[0].files[0] && (fileSizeCheck || !fileTypeCheck)) {
-									  						result = "Max file size permitted is 2MB (.gif /.jpeg /.png /.bmp)";
-													    } else 
-													    	result = false;
-										  					
-										  		}
-										  		return result;
-										  }
-									  }
-								});
-							});
+						<script type="text/javascript" src="./js/jquery.ui.widget.js"></script>
+						<script type="text/javascript" src="./js/jquery.iframe-transport.js"></script>
+						<script type="text/javascript" src="./js/jquery.fileupload.js"></script>
+						<script type="text/javascript" src="./js/jquery.cloudinary.js"></script> 
+						<script src="//widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+						<script>
+							function openUpload()
+							{
+								//document.getElementById("dropzone-area").style.display = 'block';
+								cloudinary.openUploadWidget({
+									cloud_name: 'welfare-cdn',
+									upload_preset: 'sofuqkk4',
+									folder: 'dev',
+									multiple: false,
+									max_file_size:1024000,
+									theme : 'minimal'
+									}, 
+								        function(error, result) {
+											if(result){
+												var p = result[0];
+												var logoImg = {'publicId' : p.public_id,
+													 'url' : p.secure_url,
+													 'thumbUrl' : p.thumbnail_url,
+													 'fileName' : p.original_filename,
+													 'createdAt' : p.created_at};
+												$.ajax({
+												    method: "POST",
+												    url: "updateNgoLogo",
+												    data: {newLogoImg : JSON.stringify(logoImg)},
+												    traditional: true,
+												    success:
+												        function(jsonResponse) {
+															iqwerty.toast.Toast(jsonResponse.ajaxResponseDummyMsg);
+															loader.stop();	
+														}
+												});
+											}				
+											
+										});
+							}
 						</script>
-						</li>
+						<ul class="list-group">
+							<li class="list-group-item active">
+								Change your logo image
+							</li>
+							<li class="list-group-item">
+							  	<button class="btn btn-simple btn-block" onclick="openUpload()">Upload</button>
+								<div class="help-block">Max file size permitted is 1MB (.gif /.jpeg /.png /.bmp)</div>
+							</li>
+						</ul>
 					</div>
 					
 					<div class="row">
-						<li class="list-group-item active">
-							Delete your Welfare Community Account
-						</li>
-						<li class="list-group-item">
-							<a href="<s:url action='deleteAccount'></s:url>"
-									   title="Delete Account" onclick="return confirm('Are you sure you want to delete your account? All your traces will be deleted')"><i class="fa fa-trash fa-2x"></i></a>
-						</li>
+						<ul class="list-group">
+							<li class="list-group-item active">
+								Delete your Welfare Community Account
+							</li>
+							<li class="list-group-item">
+								<a href="<s:url action='deleteAccount'></s:url>"
+										   title="Delete Account" onclick="return confirm('Are you sure you want to delete your account? All your traces will be deleted')"><i class="fa fa-trash fa-2x"></i></a>
+							</li>
+						</ul>
 					</div>
 					
 					

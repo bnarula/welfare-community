@@ -11,6 +11,34 @@
 <link rel="stylesheet" href="./css/bootstrap-image-gallery.min.css">
 
 <link rel="stylesheet" href="./css/dropzone.css">
+<style>
+	.image-selection-corner {
+		position : absolute;
+		right : 2px;
+		top : 2px;
+		height : 40px;
+		width : 40px;
+		display:none;
+	}
+	.thumbnail:hover .image-selection-corner {
+		display:block;
+	}
+	.selectbox {
+		position : absolute;
+		right : 10px;
+		top : 10px;
+		font-size : 22px !important;
+		color : black;
+	}
+	.selected .selectbox {
+		color : #5f9be4;
+	}
+	.selected img {
+		transform: translateZ(0px) scale3d(0.82, 0.86, 1);
+		border: solid #5f9be4 8px  !important;
+	}
+	
+</style>
 </head>
 <body>
 <%@ include file="header.jsp" %>
@@ -32,107 +60,96 @@
 		cloudinary.openUploadWidget({
 			cloud_name: 'welfare-cdn',
 			upload_preset: 'sofuqkk4',
-			folder: '<s:property value="pageOwnerCode"/>'}, 
+			folder: 'dev',
+			max_file_size:1024000,
+			thumbnails :'.galleryDiv'}, 
 		        function(error, result) {
-				
-					console.log(error, result);
-					
+					if(result.length){
+						var photosArr = [];
+						result.forEach(function(p){
+							photosArr.push({'publicId' : p.public_id,
+								 'url' : p.secure_url,
+								 'thumbUrl' : p.thumbnail_url,
+								 'fileName' : p.original_filename,
+								 'createdAt' : p.created_at});
+						});
+						var postData = {'from' : '<s:property value="from"/>',
+								 'upPhotos' : JSON.stringify(photosArr)
+						};
+						<s:if test="%{from==\"event\"}">
+							postData.eventId = <s:property value="eventId" />; 
+						</s:if>
+						$.ajax({
+						    method: "POST",
+						    url: "uploadPhotosAction",
+						    data: postData,
+						    traditional: true,
+						    success:
+						        function(jsonResponse) {
+									iqwerty.toast.Toast(jsonResponse.ajaxResponseDummyMsg);
+									loader.stop();	
+								}
+						});
+					}				
 					
 				});
 	}
-	function closeDropzone(){
-		document.getElementById("dropzone-area").style.display = 'none';
-	}
+		
 	
-	function enableDelButton()
-	{
-		$('#bDelete').removeClass('disabled');
-		if($('#bAddToSlideshow'))
-			$('#bAddToSlideshow').removeClass('disabled');
-		if($('#bRemoveFromSlideshow'))
-			$('#bRemoveFromSlideshow').removeClass('disabled');
-		var cboxs =$( "form :checked" );
-		if(cboxs.length===0){
-			$('#bDelete').addClass('disabled');
-			if($('#bAddToSlideshow'))
-				$('#bAddToSlideshow').addClass('disabled');
-			if($('#bRemoveFromSlideshow'))
-				$('#bRemoveFromSlideshow').addClass('disabled');
-		}
-			
-	}
 	function deleteSelected()
 	{
-		
-		var cboxs =$( "input:checked" );
-		var toBeDeletedArr=new Array(cboxs.length);
-		for(var i=0; i<cboxs.length;i++)
-		{
-			toBeDeletedArr[i] = cboxs[i].value;
-		}
-		if(toBeDeletedArr.length){
+		jQuery.ajaxSettings.traditional = true;
+		if(selectedItemsArr.length) {
 			loader.start();
-		$.getJSON('ajaxDeletePhotoAction',
-				{'deletePhotosIdArray' : toBeDeletedArr.toString()},
-				function(jsonResponse) {
-						
-					iqwerty.toast.Toast(jsonResponse.ajaxResponseDummyMsg);
-					for(var i = 0; i<toBeDeletedArr.length;i++)
-						{
-							$('#div'+toBeDeletedArr[i])[0].remove();	
-						}
-						loader.stop();	
-				});
+			$.getJSON('ajaxDeletePhotoAction',
+					{'deletePhotosIdArray' : selectedItemsArr.toString()},
+					function(jsonResponse) {
+							
+						iqwerty.toast.Toast(jsonResponse.ajaxResponseDummyMsg);
+						for(var i = 0; i<selectedItemsArr.length;i++)
+							{
+								$('#div'+selectedItemsArr[i])[0].remove();	
+							}
+							loader.stop();	
+					});
 		}
-		
 	}
 	function addToSlideshow()
 	{
-		
-		var cboxs =$( "form :checked" );
-		var slideshowArr=[];
-		for(var i =0; i<cboxs.length; i++)
-		{
-			slideshowArr.push(cboxs[i].value);
-		}
 		jQuery.ajaxSettings.traditional = true;
-		if(slideshowArr.length){
+		if(selectedItemsArr.length){
 			loader.start();
-		$.getJSON('ajaxAddToSlideshowAction',
-				{'addToSlideshow' : slideshowArr},
-				function(jsonResponse) {
-					loader.stop();
-					iqwerty.toast.Toast(jsonResponse.ajaxResponseDummyMsg);
-					 setTimeout(function(){
-						   window.location.href = window.location.href;
-					   },3000);
-				}
-				);
+			$.getJSON('ajaxAddToCoverAction',
+					{'addToSlideshow' : selectedItemsArr},
+					function(jsonResponse) {
+						loader.stop();
+						iqwerty.toast.Toast(jsonResponse.ajaxResponseDummyMsg);
+						 setTimeout(function(){
+							   window.location.href = window.location.href;
+						   },3000);
+					}
+					);
 		}
 		jQuery.ajaxSettings.traditional = false;
 		
 	}
 	function removeFromSlideshow()
 	{
-		loader.start();
-		var cboxs =$( "form :checked" );
-		var slideshowArr=[];
-		for(var i =0; i<cboxs.length; i++)
-		{
-			slideshowArr.push(cboxs[i].value);
+		if(selectedItemsArr.length){
+			loader.start();
+			jQuery.ajaxSettings.traditional = true;
+			$.getJSON('ajaxRemoveFromCoverAction',
+					{'removeFromSlideshow' : selectedItemsArr},
+					function(jsonResponse) {
+						loader.stop();
+						iqwerty.toast.Toast(jsonResponse.ajaxResponseDummyMsg);
+						 setTimeout(function(){
+							   window.location.href = window.location.href;
+						   },3000);
+					}
+					);
+			jQuery.ajaxSettings.traditional = false;
 		}
-		jQuery.ajaxSettings.traditional = true;
-		$.getJSON('ajaxRemoveFromSlideshowAction',
-				{'removeFromSlideshow' : slideshowArr},
-				function(jsonResponse) {
-					loader.stop();
-					iqwerty.toast.Toast(jsonResponse.ajaxResponseDummyMsg);
-					 setTimeout(function(){
-						   window.location.href = window.location.href;
-					   },3000);
-				}
-				);
-		jQuery.ajaxSettings.traditional = false;
 		
 	}
 	
@@ -140,41 +157,22 @@
 		<%@ include file="ngoHeader.jsp" %>
 <hr>
 		<div class="row">
-			<div class="col-md-7 col-sm-12 col-xs-12">
+			<div class="col-md-5 col-sm-12 col-xs-12">
 				<h3 class="pageHeading"><s:property value="header" /></h3>
 			</div>
-			<div class="col-md-5 col-sm-12 col-cs-12 pull-right" style="padding-top:20px;">
+			<div class="col-md-7 col-sm-12 col-cs-12 pull-right" style="padding-top:20px;">
 				 <s:if test="%{#session.owner}">
-		       		<div class="col-md-2 col-xs-2 pull-right">	
-	       				 <div class="input-group-btn">
-					        <i class="btn fa fa-ellipsis-v fa-2x dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="font-size:20px;">
-					        </i>
-					        <ul class="dropdown-menu dropdown-menu-right">
-								<s:if test="%{!album.equalsIgnoreCase(\"Slideshow\")}">
-					          <li class="disabled" id="bDelete">
-					          	<a role="button" href="#" onclick="deleteSelected()" title="Delete selected" >Delete selected</a>
-					          </li>
-								</s:if>
-					          <s:if test="%{!album.equalsIgnoreCase(\"Slideshow\")}">
-						          <li class="disabled" id="bAddToSlideshow">
-						          	<a role="button" href="#"   onclick="addToSlideshow()" title="Add to Slideshow" >Add to Profile Slideshow</a>
-						          </li>
-					          </s:if>
-					          <s:if test="%{album.equalsIgnoreCase(\"Slideshow\")}">
-						          <li class="disabled" id="bRemoveFromSlideshow" >
-						          	<a role="button" href="#" onclick="removeFromSlideshow()" title="Remove from Slideshow">Remove from Profile Slideshow</a>
-						          </li>
-					          </s:if>
-					        </ul>
-					      </div>
-				      </div>
-				      <div class="col-md-4 col-xs-4 pull-right">
-						<button class="btn btn-simple" name="addMore" onClick="displayDropzone()" title="Upload Photos">Upload Photos</button>
-		       		</div>	
-	       		</s:if>
+					<button class="btn btn-simple"  name="addMore" onClick="displayDropzone()" title="Upload Photos">Add Photos</button>
+					<s:if test="%{!album.equalsIgnoreCase(\"Slideshow\")}">
+						<button class="btn btn-simple" disabled id="bAddToSlideshow" onClick="addToSlideshow()" title="Add to Cover">Add to Cover Photos</button>
+					</s:if>
+					<s:else>
+						<button class="btn btn-simple" disabled id="bRemoveFromSlideshow" onClick="removeFromSlideshow()" title="Remove from Slideshow">Remove from Cover Photos</button>
+					</s:else>
+					<button class="btn btn-simple" disabled id="bDelete" onClick="deleteSelected()" title="Delete selected">Delete Selected</button>
+				</s:if>
 				<s:if test="%{from==\"ngo\"}">
-					<div class="col-md-4 col-xs-4 pull-right">
-			       		<div class="input-group-btn" >
+			       		<div class="input-group-btn" style="float:right; width:initial;">
 					        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					        Album: <s:property value="album" /> <span class="caret"></span></button>
 					        <ul class="dropdown-menu dropdown-menu-right">
@@ -189,14 +187,8 @@
 							             	 <s:param name="album">all</s:param>
 							             	 <s:param name="pageOwnerCode"><s:property value="pageOwnerCode"/></s:param>
 							              </s:url>" title="View All" >All</a></li>
-					          <li><a href="<s:url action='getPhotos'>
-							             	 <s:param name="from">ngo</s:param>
-							             	 <s:param name="album">events</s:param>
-							             	 <s:param name="pageOwnerCode"><s:property value="pageOwnerCode"/></s:param>
-							              </s:url>" title="Event Photos">Events</a></li>
 					        </ul>
 					      </div>
-				      </div>
 			     </s:if>
 			</div>
 				 
@@ -206,86 +198,62 @@
 			<script type="text/javascript" src="./js/jquery.fileupload.js"></script>
 			<script type="text/javascript" src="./js/jquery.cloudinary.js"></script> 
 			<script src="//widget.cloudinary.com/global/all.js" type="text/javascript"></script>
-			<%-- <script>
-			  $.cloudinary.config({"api_key":"921954663419325","cloud_name":"welfare-cdn"});
-			  $(function() {
-				  if($.fn.cloudinary_fileupload !== undefined) {
-				    $("input.cloudinary-fileupload[type=file]").cloudinary_fileupload();
-				  }
-				});
-			  
-			  
-			  
-			</script> --%>
 		<hr>
 		<div class="row">
-	       	<div class="dropzoneArea" id="dropzone-area" style="display:none;">
-	       	<form>
-  <cl:upload resourceType="auto" fieldName="image_id" alt="sample"/>
-</form>
-	       		<form>
-				  <input name="file" type="file" 
-			       class="cloudinary-fileupload" data-cloudinary-field="image_upload" 
-			       data-form-data=" ... html-escaped JSON data ... " ></input>
-				</form>
-		    	<%-- <form action="uploadPhotosAction" class="dropzone dz-clickable" id="dropzone-form">
-		    		
-		    		<s:hidden name="from" value="%{from}" />
-		    		<s:hidden name="eventId" value="%{eventId}" />
-		    		<div class="dz-default dz-message"><span>Drop files here to upload</span></div>
-		    		
-		    	</form> --%>
-		    	<script>
-		    			
-						  Dropzone.options.dropzoneForm = {
-							paramName: "imgFile",
-						    maxFilesize: 2,
-						    dictFileTooBig:	'File size exceeds maximum of {{maxFilesize}}MB!!',
-						    maxFiles: 9,
-						    dictMaxFilesExceeded: 'You can only upload 9 files at a time!! Please Try Again.',
-						    acceptedFiles: 'image/*',
-						    dictInvalidFileType: 'Invalid file!! Only image files accepted.',
-						    //addRemoveLinks:true,
-						    init: function() {
-						      this.on("uploadprogress", function(file, progress) {
-						        console.log("File progress", progress);
-						      });
-						    }
-						  }
-						  function refresh(){
-							  window.location.reload(true);
-						  }
-					</script>
-		    	<button class="btn btn-default pull-right" onClick="refresh()">Done</button>
-		    	<button class="btn btn-default pull-right" onClick="closeDropzone()">Close</button>
-		    	<br><br><br>
-		    </div>
 		<script>
+			var selectedItemsArr = [];
+			var selectElement = function(event){
+				var tgt = event.currentTarget;
+				var thisId = tgt.getAttribute('data-img-id');
+				thisId = parseInt(thisId);
+				var chk = tgt.getElementsByClassName('selectbox')[0];
+				if(selectedItemsArr.includes(thisId)){
+					chk.classList.replace('fa-check-square-o', 'fa-square-o');
+					selectedItemsArr.splice(selectedItemsArr.indexOf(thisId), 1);
+					$('#div'+thisId).removeClass('selected');
+				}
+				else{
+					chk.classList.replace('fa-square-o', 'fa-check-square-o');
+					selectedItemsArr.push(thisId);
+					$('#div'+thisId).addClass('selected');
+				}
+				checkSelectedItemsArr();
+					
+			}
+			function checkSelectedItemsArr(){
+				var selection = (selectedItemsArr && selectedItemsArr.length)
+				$('#bDelete').attr('disabled', !selection);
+				$('#bAddToSlideshow').attr('disabled', !selection);
+				$('bRemoveFromSlideshow').attr('disabled', !selection);
+			}
 			function imageElement(image, owner) {
 				var imgId = image.id;
 				var imgUrl = image.url;
+				var thumbUrl = image.thumbUrl;
 				var imgDiv = $('<div />', {
 					'class' : 'col-md-3 col-sm-6 col-xs-12 thumbnail',
 					'id' : 'div' + imgId
 				});
 				if (owner) {
-					var form = $('<form />').appendTo(imgDiv);
-					var chkbox = $('<input />', {
-						'type' : 'checkbox',
-						'name' : imgId,
-						'onchange' : 'enableDelButton()',
-						'value' : imgId
-					}).appendTo(form);
+					var selectionCorner = $('<div />', {
+						'data-img-id' : imgId,
+						'class' : 'image-selection-corner',
+						'click' : selectElement
+					}).appendTo(imgDiv);
+					var checkIcon = $('<i />',{
+						'class' : 'fa fa-square-o selectbox'
+					}).appendTo(selectionCorner);
+					
 				}
 				var link = $('<a />', {
-					'href' : imgUrl.replace("_thumb", ""),
+					'href' : imgUrl,
 					'data-gallery' : ''
 				}).appendTo(imgDiv);
 				var img = $(
 						'<img />',
 						{
 							'style' : 'object-fit:cover ; height:200px; border-radius: 4px',
-							'src' : imgUrl
+							'src' : thumbUrl
 						}).appendTo(link);
 	    	 
 				var galleryDiv = $('.galleryDiv');

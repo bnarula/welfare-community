@@ -16,6 +16,8 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 import com.sun.jersey.multipart.FormDataMultiPart;
 import com.sun.jersey.multipart.impl.MultiPartWriter;
 
+import constants.Constants;
+
 public class MailUtil {
 	public static ClientResponse SendSimpleMessage(String toEmail, String toName, String subject, String msg) {
 	    Client client = Client.create();

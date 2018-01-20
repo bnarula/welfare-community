@@ -16,12 +16,11 @@ import java.util.List;
 import beans.AddressBean;
 import beans.EventBean;
 import beans.VolunteerBean;
-import util.Constants;
-import util.ImageUtil;
+import constants.Constants;
 
 public class EventDao {
 
-	public static int createNewEvent(Connection conn, EventBean eventBean, String ngoUid) throws SQLException {
+	public static int createNewEvent(Connection conn, EventBean eventBean, Integer ngoUid) throws SQLException {
 		int eventId = 0;
 		eventBean.getAddressBean().setCode(AddressDao.getAddressMasterCode(conn, eventBean.getAddressBean()));
 		PreparedStatement pStmt = conn.prepareStatement("insert into events_table("
@@ -33,7 +32,7 @@ public class EventDao {
 		pStmt.setDate(3, d);
 		pStmt.setString(4, eventBean.getEvtTime());
 		pStmt.setInt(5, eventBean.getAddressBean().getCode());
-		pStmt.setString(6, ngoUid);
+		pStmt.setInt(6, ngoUid);
 		pStmt.setString(7, eventBean.getAddressBean().getStreet());
 		pStmt.execute();
 		ResultSet rsGetAutoId = pStmt.getGeneratedKeys();
@@ -57,7 +56,7 @@ public class EventDao {
 		pStmt.setInt(5, AddressDao.getAddressMasterCode(conn, eventBean.getAddressBean()));
 		pStmt.setString(6, eventBean.getAddressBean().getStreet());
 		pStmt.setInt(7, eventBean.getId());
-		pStmt.setString(8, eventBean.getOrganizer());
+		pStmt.setInt(8, eventBean.getOrganizer());
 		pStmt.executeUpdate();
 		eventId = eventBean.getId();
 		pStmt.close();
@@ -81,9 +80,9 @@ public class EventDao {
 			evtAddressBean.setStreet(rs.getString("evt_venue"));
 			eventBean = new EventBean(rs.getInt("evt_code_pk"), rs.getString("evt_name"),
 					rs.getString("evt_details"), calendar, evtAddressBean,
-					rs.getString("evt_time"), rs.getString("evt_organizer_code_fk"),
+					rs.getString("evt_time"), rs.getInt("evt_organizer_code_fk"),
 					PhotoDao.getUrlFromPhotoId(conn, rs.getInt("evt_dp_p_id"), false), rs.getString("evt_work_req"), rs.getString("evt_status"));
-			eventBean.setListOfEventPhotos(PhotoDao.getListOfPhotoURLs(conn, ""+id,"all", "event", 0 , 20, true));
+			eventBean.setListOfEventPhotos(PhotoDao.getListOfPhotos(conn, id, "event", 0 , 20, true));
 		}
 		rs.close();
 		stmt.close();
@@ -124,7 +123,7 @@ public class EventDao {
 		Statement stmt = conn.createStatement();
 		if(selectables.contains(Constants.EVENTBEAN_PHOTOS_URLS)){
 			selectables.remove(Constants.EVENTBEAN_PHOTOS_URLS);
-			eventBean.setListOfEventPhotos(PhotoDao.getListOfPhotoURLs(conn, ""+id,"all", "event", 0 , 20, true));
+			eventBean.setListOfEventPhotos(PhotoDao.getListOfPhotos(conn, id, "event", 0 , 20, true));
 		}
 		String selectString = "";
 		selectString = selectables.toString();
@@ -151,7 +150,7 @@ public class EventDao {
 			if(selectables.contains(Constants.EVENTBEAN_NAME))
 				eventBean.setName(rs.getString(Constants.EVENTBEAN_NAME));
 			if(selectables.contains(Constants.EVENTBEAN_ORGANIZER))
-				eventBean.setOrganizer(rs.getString(Constants.EVENTBEAN_ORGANIZER));
+				eventBean.setOrganizer(rs.getInt(Constants.EVENTBEAN_ORGANIZER));
 			if(selectables.contains(Constants.EVENTBEAN_STATUS))
 				eventBean.setStatus(rs.getString(Constants.EVENTBEAN_STATUS));
 			if(selectables.contains(Constants.EVENTBEAN_TIME))
@@ -189,7 +188,7 @@ public class EventDao {
 			evtAddressBean.setStreet(rs.getString("evt_venue"));
 			eventBeanList.add(new EventBean(rs.getInt("evt_code_pk"), rs.getString("evt_name"),
 					rs.getString("evt_details"), calendar, evtAddressBean,
-					rs.getString("evt_time"), rs.getString("evt_organizer_code_fk"),
+					rs.getString("evt_time"), rs.getInt("evt_organizer_code_fk"),
 					PhotoDao.getUrlFromPhotoId(conn, rs.getInt("evt_dp_p_id"), true),"", rs.getString("evt_status")));
 		}
 		rs.close();
@@ -197,47 +196,36 @@ public class EventDao {
 		return eventBeanList;
 	}
 
-	public static void updateImageURL(Connection conn, int eventId, String pFName, String pFPath, String pFExt) throws SQLException  {
-		Statement stmt = conn.createStatement();
-		stmt.execute("insert into photo_table(p_file_name, p_file_path, p_file_extension, p_category, p_owner_id) values('"
-				+ pFName + "','" + pFPath + "','" + pFExt + "','eventDp','" + eventId + "')",
-				Statement.RETURN_GENERATED_KEYS);
-		ResultSet rsGetAutoId = stmt.getGeneratedKeys();
-		int pId = -1;
-		if (rsGetAutoId.next())
-			pId = rsGetAutoId.getInt(1);
-		stmt.execute("update events_table set evt_dp_p_id=" + pId + " where evt_code_pk=" + eventId);
-		rsGetAutoId.close();
-		stmt.close();
+	public static void updateLogo(Connection conn, Integer eventId, int pId) throws SQLException{
+		PreparedStatement stmt = conn.prepareStatement("update events_table set evt_dp_p_id =? where evt_code_pk=?");
+		stmt.setInt(1, pId);
+		stmt.setInt(2, eventId);
+		stmt.executeUpdate();
 	}
-
-	public static void deleteEvent(Connection conn, int eventId, String folderPath) throws SQLException {
-		
-		ArrayList<File> filesToDelete = new ArrayList<File>();
-		try {
-			File imagesFolder = new File(folderPath);
-			for(File item : imagesFolder.listFiles()){
-				filesToDelete.add(item);
-			}
-			filesToDelete.add(imagesFolder);
-		} catch (NullPointerException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	public static String getDPPublicId(Connection conn, Integer eventId) throws SQLException{
+		String logoId = "";
+		PreparedStatement stmt = conn.prepareStatement("select evt_code_pk, evt_dp_p_id, public_id"
+				+ " from events_table join photo_table on evt_dp_p_id = id where evt_code_pk=? and category = 'eventDp'");
+		stmt.setInt(1, eventId);
+		ResultSet rs = stmt.executeQuery();
+		if(rs.next()){
+			logoId = rs.getString("public_id");
 		}
-		PreparedStatement stmt = conn.prepareStatement("delete from photo_table where p_owner_id=? and p_category='event' ");
+		return logoId;
+	}
+	public static void deleteEvent(Connection conn, int eventId, int organizer) throws SQLException {
+		
+		PreparedStatement stmt = conn.prepareStatement("delete from photo_table where owner_id=? and (category='event' or category='eventDp') ");
 		stmt.setString(1, ""+eventId);
 		stmt.execute();
 		stmt.close();
-		stmt = conn.prepareStatement("delete from events_table where evt_code_pk=?");
+		stmt = conn.prepareStatement("delete from events_table where evt_code_pk=? and evt_organizer_code_fk = ?");
 		stmt.setInt(1, eventId);
+		stmt.setInt(2, organizer);
 		stmt.execute();
 		stmt.close();
 		conn.commit();
-		if(!filesToDelete.isEmpty()){
-			for(File item : filesToDelete){
-				item.delete();
-			}
-		}
+		//TODO delete event images from db and cloud;
 	}
 
 	public static List<EventBean> searchByLocation(Connection conn, String currentCity, int start, int count) throws SQLException {
@@ -260,7 +248,7 @@ public class EventDao {
 			evtAddressBean.setStreet(rs.getString("evt_venue"));
 			eventList.add(new EventBean(rs.getInt("evt_code_pk"), rs.getString("evt_name"),
 					rs.getString("evt_details"), calendar, evtAddressBean,
-					rs.getString("evt_time"), rs.getString("evt_organizer_code_fk"),
+					rs.getString("evt_time"), rs.getInt("evt_organizer_code_fk"),
 					PhotoDao.getUrlFromPhotoId(conn, rs.getInt("evt_dp_p_id"), true),"", ""));
 		}
 		rs.close();
@@ -268,16 +256,16 @@ public class EventDao {
 		return eventList;
 	}
 
-	public static void createNewWork(Connection conn, String organizerId, int eventId, String newWork) throws SQLException {
+	public static void createNewWork(Connection conn, Integer organizerId, int eventId, String newWork) throws SQLException {
 		Statement stmt = conn.createStatement();
 		stmt.execute(
-				"update events_table set evt_work_req = '" + newWork + "', evt_status = 'open' where evt_code_pk=" + eventId+" and evt_organizer_code_fk='"+organizerId+"'");
+				"update events_table set evt_work_req = '" + newWork + "', evt_status = 'open' where evt_code_pk=" + eventId+" and evt_organizer_code_fk="+organizerId);
 		stmt.close();
 	}
 
-	public static void promoteEventState(Connection conn, String organizerId, int eventId, String strNewState) throws SQLException {
+	public static void promoteEventState(Connection conn, Integer organizerId, Integer eventId, String strNewState) throws SQLException {
 		Statement stmt = conn.createStatement();
-		stmt.execute("update events_table set evt_status = '" + strNewState + "' where evt_code_pk = " + eventId+" and evt_organizer_code_fk='"+organizerId+"'");
+		stmt.execute("update events_table set evt_status = '" + strNewState + "' where evt_code_pk = " + eventId+" and evt_organizer_code_fk="+organizerId);
 		stmt.close();
 	}
 
@@ -306,8 +294,9 @@ public class EventDao {
 				+ "where "+strStatusWhere+" evolt.e_v_event_id_fk="+eventId+" order by vol.v_name limit "+start*count+", "+count);
 		while(rs.next())
 		{
-			String vId, vName, vEmail,  vContact, vImageUrl, vGender;
-			vId = rs.getString(1);
+			Integer vId;
+			String vName, vEmail,  vContact, vImageUrl, vGender;
+			vId = rs.getInt(1);
 			vEmail = rs.getString(2);
 			vName = rs.getString(3);
 			vContact = rs.getString(4);
@@ -322,10 +311,9 @@ public class EventDao {
 	}
 
 	public static void setApplicantStatus(Connection conn, String vId, int eventId, String strNewState) throws SQLException {
-		vId = vId.replace(",", "','");
 		Statement stmt = conn.createStatement();
 		stmt.execute("update event_volunteer_table set e_v_status = '" + strNewState + 
-				"' where e_v_event_id_fk = " + eventId+" and e_v_vol_id_fk in ('"+vId+"')");
+				"' where e_v_event_id_fk = " + eventId+" and e_v_vol_id_fk in ("+vId+")");
 		stmt.close();
 	}
 

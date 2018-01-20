@@ -8,9 +8,9 @@ import java.util.List;
 import beans.AddressBean;
 import beans.NgoBean;
 import config.DBConnection;
+import constants.Constants;
+import constants.ResultConstants;
 import dao.NgoDao;
-import util.Constants;
-import util.ResultConstants;
 
 public class ContactUsAction {
 	private List<AddressBean> ngoAddressBeanList = new ArrayList<AddressBean>();

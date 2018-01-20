@@ -15,14 +15,14 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import config.DBConnection;
-import util.Constants;
+import constants.Constants;
 
 public class VerificationDao {
 
-	public static String validatePasscode(Connection con, String userCode, String passcode, String type) throws SQLException {
+	public static String validatePasscode(Connection con, Integer userCode, String passcode, String type) throws SQLException {
 		String result = "";
 		PreparedStatement stmt = con.prepareStatement("select * from passcode_table where pt_user_code_fk=? and pt_type=? order by id desc");
-		stmt.setString(1, userCode);
+		stmt.setInt(1, userCode);
 		stmt.setString(2, type);
 		ResultSet rs = stmt.executeQuery();
 		boolean passHasNotExpired = false;
@@ -58,17 +58,17 @@ public class VerificationDao {
 		return result;
 	}
 
-	private static void deletePasscode(Connection con, String userCode, String type) throws SQLException {
+	private static void deletePasscode(Connection con, Integer userCode, String type) throws SQLException {
 		PreparedStatement stmt = con.prepareStatement("delete from passcode_table where pt_user_code_fk=? and pt_type=?");
-		stmt.setString(1, userCode);
+		stmt.setInt(1, userCode);
 		stmt.setString(2, type);
 		stmt.execute();
 		stmt.close();
 	}
 
-	public static void generateNewPasscode(Connection con, String uid, String passcode, String type) throws SQLException {
+	public static void generateNewPasscode(Connection con, Integer uid, String passcode, String type) throws SQLException {
 		PreparedStatement stmt = con.prepareStatement("insert into passcode_table(pt_user_code_fk, pt_user_passcode, pt_validity, pt_type) values(?,?,?,?)");
-		stmt.setString(1, uid);
+		stmt.setInt(1, uid);
 		stmt.setString(2, passcode);
 		java.sql.Date validityDate = new java.sql.Date(System.currentTimeMillis());
 		Calendar c = new GregorianCalendar();
@@ -80,7 +80,7 @@ public class VerificationDao {
 		stmt.execute();
 		stmt.close();
 	}
-	public static void updatePasscode(Connection con, String uid, String passcode, String type) throws SQLException {
+	public static void updatePasscode(Connection con, Integer uid, String passcode, String type) throws SQLException {
 		PreparedStatement stmt = con.prepareStatement("update passcode_table set pt_user_passcode = ?, pt_validity =? where pt_user_code_fk=? "
 				+ "and pt_type = ?");
 		
@@ -91,7 +91,7 @@ public class VerificationDao {
 		c.add(Calendar.DATE, 1);
 		validityDate.setTime(c.getTimeInMillis());
 		stmt.setDate(2, validityDate);
-		stmt.setString(3, uid);
+		stmt.setInt(3, uid);
 		stmt.setString(4, type);
 		stmt.executeUpdate();
 		stmt.close();

@@ -2,7 +2,6 @@ package beans;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
 
 import com.opensymphony.xwork2.conversion.annotations.Conversion;
@@ -19,14 +18,14 @@ public class EventBean {
 	private Calendar calendar = new GregorianCalendar();
 	private String evtTime;
 	private AddressBean addressBean;
-	private String organizer;
+	private Integer organizer;
 	private String imageURL;
 	private String workReq;
 	private String status;
 	private List<PhotoBean> listOfEventPhotos;
 	
 	public EventBean(int id, String name, String details,
-			Calendar calendar, AddressBean address, String evtTime, String organizer, String imageURL, String workReq, String status) {
+			Calendar calendar, AddressBean address, String evtTime, Integer organizer, String imageURL, String workReq, String status) {
 		this.id=id;
 		this.name=name;
 		this.details = details;
@@ -79,10 +78,10 @@ public class EventBean {
 	public void setEvtTime(String eTime) {
 		this.evtTime = eTime;
 	}
-	public String getOrganizer() {
+	public Integer getOrganizer() {
 		return organizer;
 	}
-	public void setOrganizer(String organizer) {
+	public void setOrganizer(Integer organizer) {
 		this.organizer = organizer;
 	}
 	public String getImageURL() {

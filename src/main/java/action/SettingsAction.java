@@ -1,6 +1,7 @@
 package action;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -9,23 +10,30 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.dispatcher.SessionMap;
 import org.apache.struts2.interceptor.SessionAware;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import com.google.gson.Gson;
 import com.opensymphony.xwork2.ActionSupport;
 
 import beans.AddressBean;
 import beans.CauseBean;
+import beans.PhotoBean;
 import config.DBConnection;
+import constants.Constants;
+import constants.ResultConstants;
 import dao.AddressDao;
 import dao.AddressMasterDao;
 import dao.CauseDao;
 import dao.NgoDao;
 import dao.PhotoDao;
 import dao.UserDao;
-import util.Constants;
-import util.ImageUtil;
-import util.ResultConstants;
+import util.CloudinaryUtils;
 
 public class SettingsAction extends ActionSupport implements SessionAware {
 	SessionMap<String, Object> sessionMap;
@@ -63,7 +71,7 @@ public class SettingsAction extends ActionSupport implements SessionAware {
 	
 	
 	public String openSettings(){
-		String ngoUid = (String)sessionMap.get("userCode");
+		String ngoUid = ""+sessionMap.get("userCode");
 		setItemsForEditAddress(ngoUid);
 		return ResultConstants.SUCCESS;
 	}
@@ -93,7 +101,7 @@ public class SettingsAction extends ActionSupport implements SessionAware {
 		}
 	}
 	public String ajaxAddNewAddressAction() {
-		String ngoUid = (String) sessionMap.get("userCode");
+		Integer ngoUid = Integer.parseInt(""+sessionMap.get("userCode"));
 		int code;
 		try(Connection conn = DBConnection.getConnection()) {
 			code = AddressDao.createNewAddress(conn, ngoUid, addressBean.getStreet(), addressBean.getArea(), addressBean.getPincode(),
@@ -109,7 +117,7 @@ public class SettingsAction extends ActionSupport implements SessionAware {
 		return ResultConstants.SUCCESS;
 	}
 	public String ajaxAddNewCauseAction() {
-		String ngoUid = (String) sessionMap.get("userCode");
+		Integer ngoUid = Integer.parseInt(""+sessionMap.get("userCode"));
 		try(Connection con = DBConnection.getConnection()) {
 			newCauseCode = CauseDao.createNewCause(con, ngoUid, newMasterCauseCode);
 			if(newCauseCode.equals(-1))
@@ -140,7 +148,7 @@ public class SettingsAction extends ActionSupport implements SessionAware {
 	public String ajaxDeleteCauseAction() {
 		try(Connection conn = DBConnection.getConnection()) {
 			//for(String cCode : getDeleteCauseCodeArray())
-			CauseDao.deleteCause(conn, (String)sessionMap.get("userCode"), getDeleteCauseCodeArray());
+			CauseDao.deleteCause(conn, Integer.parseInt(""+sessionMap.get("userCode")), getDeleteCauseCodeArray());
 			ajaxResponseDummyMsg = "Successfully deleted!";
 			sessionMap.put("isUserModified", true);
 		} catch (SQLException e) {
@@ -150,43 +158,49 @@ public class SettingsAction extends ActionSupport implements SessionAware {
 		return ResultConstants.SUCCESS;
 	}
 	
-	public String updateNgoLogo() throws SQLException{
-		String ngoUid = (String)sessionMap.get("userCode");
-		int pId = 0;
-		String filePath = ImageUtil.getDestinationPath("ngo", ngoUid, null);
-		String destPath = Constants.IMAGES_ROOTPATH+filePath;
-		String pFPath = Constants.DB_IMAGES_ROOTPATH+filePath;
-		String pFExt = ImageUtil.getExtension(imgFileContentType);
-		
-		try(Connection conn = DBConnection.getConnection()) {
-			String existingLogo = PhotoDao.getLogoFileURL(conn, "ngo", ngoUid );
-			if(!existingLogo.contains("defaults//default"))
-			{
-				String toBeReplacedFileUrl = Constants.IMAGES_ROOTPATH + existingLogo.substring(14);
-				ImageUtil.saveOrReplaceImage(imgFile,new File(toBeReplacedFileUrl), "logo", destPath, pFExt);
-				PhotoDao.updatePhoto(conn, ngoUid, pFExt, "ngoLogo");
-			}
-			else
-			{
-				ImageUtil.saveImage(imgFile,"logo", destPath, pFExt);
-				
-					pId = PhotoDao.createNew(conn, "logo", pFPath, pFExt, "ngologo", ngoUid);
-					NgoDao.updateLogo(conn, ngoUid, pId);
-				
+	public String updateNgoLogo() throws SQLException, IOException{
+		Integer ngoUid = Integer.parseInt(""+sessionMap.get("userCode"));
+		Connection con = DBConnection.getConnection();
+		try {
+			con.setAutoCommit(false);
+			String existingLogoId = NgoDao.getLogoPublicId(con, ngoUid);
+			HttpServletRequest request = ServletActionContext.getRequest();
+			String newLogoImg = request.getParameter("newLogoImg");
+			Gson g = new Gson();
+			PhotoBean pb = g.fromJson(newLogoImg, PhotoBean.class);
+			pb.setOwnerId(ngoUid);
+			pb.setCategory("ngoLogo");
+			Integer pId = 0;
+			
+			if(!existingLogoId.equals(Constants.DEFAULT_NGO_LOGO_PUBLIC_ID)){
+				CloudinaryUtils.deleteImage(existingLogoId, null);
+				PhotoDao.update(con, pb, existingLogoId);
+			} else {
+				pId = PhotoDao.create(con, pb);
+				NgoDao.updateLogo(con, ngoUid, pId);
 			}
 			sessionMap.put("isUserModified", true);
+			sessionMap.put("logoUrl", pb.getThumbUrl());
+			ajaxResponseDummyMsg = "Logo Updated Successfully";
+			con.commit();
+			con.setAutoCommit(true);
+			con.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} catch (Exception e){
+			e.printStackTrace();
+			con.rollback();
 		}
+		
 		return ResultConstants.SUCCESS;
 	}
 	public void validate(){
-		String ngoUid = (String)sessionMap.get("userCode");
+		String ngoUid = ""+sessionMap.get("userCode");
 		//if(!UserDao.validate(ngoUid, getOldPassword()))
 			//addFieldError("oldPassword","Password is not valid");
 	}
 	public String updatePassword() throws SQLException{
-		String ngoUid = (String)sessionMap.get("userCode");
+		Integer ngoUid = Integer.parseInt(""+sessionMap.get("userCode"));
 		try(Connection conn = DBConnection.getConnection()) {
 			if(UserDao.validateByUid(conn, ngoUid, getOldPassword()).equals("invalid"))
 			{
@@ -204,7 +218,7 @@ public class SettingsAction extends ActionSupport implements SessionAware {
 	public String deleteAccountAction(){
 		try(Connection conn = DBConnection.getConnection()) {
 			conn.setAutoCommit(false);
-			String ngoUid = (String)sessionMap.get("userCode");
+			Integer ngoUid = Integer.parseInt(""+sessionMap.get("userCode"));
 			NgoDao.deleteNgo(conn, ngoUid);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
