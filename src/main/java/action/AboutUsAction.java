@@ -1,11 +1,13 @@
 package action;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,13 +15,16 @@ import org.apache.struts2.dispatcher.SessionMap;
 import org.apache.struts2.interceptor.SessionAware;
 
 import beans.AboutUsBean;
+import beans.PhotoBean;
 import config.DBConnection;
+import constants.Constants;
+import constants.ResultConstants;
 import dao.AboutUsDao;
+import dao.EventDao;
 import dao.NgoDao;
 import dao.PhotoDao;
-import util.Constants;
+import util.CloudinaryUtils;
 import util.ImageUtil;
-import util.ResultConstants;
 
 public class AboutUsAction implements SessionAware {
 
@@ -36,77 +41,34 @@ public class AboutUsAction implements SessionAware {
 	private String imgFileContentType;
 	private String imgFileFileName;
 	
-	private String toBeUpdatedCode;
-	private String toBeDeletedCode;
+	private Integer toBeUpdatedCode;
+	private Integer toBeDeletedCode;
 	private String toBePinnedCode;
 	
 	private String ajaxResponseDummyMsg;
 	
-	private String pageOwnerCode;
+	private Integer pageOwnerCode;
 	
 	private String defaultContent;
 	
-	public String openAboutUs()
-	{
-		
-		try(Connection conn = DBConnection.getConnection()) {
-			aboutUsList = AboutUsDao.getAboutUsList(conn, getPageOwnerCode(), 0 , 10);
-			if(aboutUsList.size()==0)
-			{
-				ArrayList selectables = new ArrayList();
-				selectables.add(Constants.NGOBEAN_DESCRIPTION);
-				defaultContent = NgoDao.getNgoBeanFromId(conn, getPageOwnerCode(), selectables).getNgoDescription();
-			}
-			return ResultConstants.SUCCESS;
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return ResultConstants.FAILURE;
-	}
-	public String editAboutUs()
-	{
-		try(Connection conn = DBConnection.getConnection()) {
-			//aboutUsList = AboutUsDao.getAboutUsList(conn, ""+sessionMap.get("userCode"));
-			return ResultConstants.SUCCESS;
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return ResultConstants.FAILURE;
-	}
-	public String saveAboutUs()
-	{
-		try(Connection conn = DBConnection.getConnection()) {
-			if(AboutUsDao.updateList(conn, aboutUsList))
-			{
-				return ResultConstants.SUCCESS;
-			}
-			else 
-				return ResultConstants.FAILURE;
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return ResultConstants.FAILURE;
-	}
 	public String ajaxUpdateThisAboutUs()
 	{
 		try(Connection conn = DBConnection.getConnection()) {
 			Calendar createdOn = new GregorianCalendar();
 			setNewAboutUsCreatedOn(createdOn.getTimeInMillis());
-			if(AboutUsDao.updateThisAboutUs(conn, toBeUpdatedCode, newAboutUsHeading, newAboutUsContent, createdOn, (String) sessionMap.get("userCode")))
+			
+			Integer userCode = Integer.parseInt(""+sessionMap.get("userCode"));
+			if(AboutUsDao.updateThisAboutUs(conn, toBeUpdatedCode, newAboutUsHeading, newAboutUsContent, createdOn, userCode))
 			{
 				if (imgFile!=null) {
-					String filePath = ImageUtil.getDestinationPath("aboutUs", (String) sessionMap.get("userCode"),
-							toBeUpdatedCode);
-					String destPath = Constants.IMAGES_ROOTPATH + filePath;
-					String pFPath = Constants.DB_IMAGES_ROOTPATH + filePath;
-					String pFExt = ImageUtil.getExtension(imgFileContentType);
-					File destFile = new File(destPath + "/" + toBeUpdatedCode + pFExt);
-					ImageUtil.saveOrReplaceImage(imgFile, destFile, toBeUpdatedCode, destPath, pFExt);
-					PhotoDao.updatePhoto(conn, toBeUpdatedCode, pFExt, "AU");
-					newAboutUsPhoto = pFPath + "/" + toBeUpdatedCode + pFExt;
+					String existingLogoId = AboutUsDao.getPhotoPublicId(conn, toBeUpdatedCode); 
+			    	CloudinaryUtils.deleteImage(existingLogoId, null);
+			    	Map options = new HashMap();
+					options.put("folder", "dev");
+			    	Map<String, String> result = CloudinaryUtils.uploadImage(imgFile, options);
+			    	PhotoBean upPhoto = new PhotoBean(result, "AU", toBeUpdatedCode);
+					PhotoDao.update(conn, upPhoto, existingLogoId);
+					newAboutUsPhoto = result.get("secure_url");
 				}
 				ajaxResponseDummyMsg = "Successfully Updated!";
 				return ResultConstants.SUCCESS;
@@ -119,18 +81,20 @@ public class AboutUsAction implements SessionAware {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return ResultConstants.FAILURE;
 	}
 	public String ajaxDeleteThisAboutUs()
 	{
 		try(Connection conn = DBConnection.getConnection()) {
-			if(AboutUsDao.deleteThisAboutUs(conn, toBeDeletedCode, (String)sessionMap.get("userCode")))
+			Integer userCode = Integer.parseInt(""+sessionMap.get("userCode"));
+			if(AboutUsDao.deleteThisAboutUs(conn, toBeDeletedCode, userCode))
 			{
-				String filePath = ImageUtil.getDestinationPath("aboutUs", (String)sessionMap.get("userCode"), toBeDeletedCode);
-				String destPath = Constants.IMAGES_ROOTPATH+filePath;
-				ImageUtil.deleteImageFile(destPath+"/"+toBeDeletedCode+PhotoDao.getAboutUsPhotoExt(conn, toBeDeletedCode));
 				PhotoDao.deleteAboutUsPhoto(conn, toBeDeletedCode);
+				//TODO delete photo from cloud
 				ajaxResponseDummyMsg = "Successfully Deleted!";
 				return ResultConstants.SUCCESS;
 			}
@@ -146,29 +110,33 @@ public class AboutUsAction implements SessionAware {
 	
 	public String ajaxSaveNewAboutUs()
 	{
+		Integer userCode = Integer.parseInt(""+sessionMap.get("userCode"));
 		try(Connection conn = DBConnection.getConnection()) {
 			Calendar createdOn = new GregorianCalendar();
 			setNewAboutUsCreatedOn(createdOn.getTimeInMillis());
-			int result = AboutUsDao.addNewAboutUs(conn, newAboutUsHeading, newAboutUsContent, ""+sessionMap.get("userCode"), createdOn);
+			int result = AboutUsDao.addNewAboutUs(conn, newAboutUsHeading, newAboutUsContent, ""+userCode, createdOn);
 			if(result!=-1)
 			{
 				setNewAboutUsCode(result);
-				newAboutUsPhoto = saveImgFile(conn, ""+result);
+				newAboutUsPhoto = saveImgFile(conn, result);
 				ajaxResponseDummyMsg = "Successfully Added!";
-				aboutUsBean = new AboutUsBean(result, ""+sessionMap.get("userCode"), newAboutUsHeading, newAboutUsContent, newAboutUsPhoto, createdOn, false);
+				aboutUsBean = new AboutUsBean(result, ""+userCode, newAboutUsHeading, newAboutUsContent, newAboutUsPhoto, createdOn, false);
 				return ResultConstants.SUCCESS;
 			}
 			else 
 				return ResultConstants.FAILURE;
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		return ResultConstants.FAILURE;
 	}
 	public String ajaxPinThisAboutUs()
 	{
+		Integer userCode = Integer.parseInt(""+sessionMap.get("userCode"));
 		try(Connection conn = DBConnection.getConnection()) {
-			AboutUsDao.pinThisAboutUs(conn, toBePinnedCode, (short)1, ""+sessionMap.get("userCode"));
+			AboutUsDao.pinThisAboutUs(conn, toBePinnedCode, (short)1, ""+userCode);
 			ajaxResponseDummyMsg = "Post Pinned!";
 			return ResultConstants.SUCCESS;
 		} catch (SQLException e) {
@@ -178,8 +146,9 @@ public class AboutUsAction implements SessionAware {
 	}
 	public String ajaxRemovePinThisAboutUs()
 	{
+		Integer userCode = Integer.parseInt(""+sessionMap.get("userCode"));
 		try(Connection conn = DBConnection.getConnection()) {
-			AboutUsDao.pinThisAboutUs(conn, toBePinnedCode, (short)0, ""+sessionMap.get("userCode"));
+			AboutUsDao.pinThisAboutUs(conn, toBePinnedCode, (short)0, ""+userCode);
 			ajaxResponseDummyMsg = "Pin removed!";
 			return ResultConstants.SUCCESS;
 		} catch (SQLException e) {
@@ -188,20 +157,20 @@ public class AboutUsAction implements SessionAware {
 		}
 		return ResultConstants.FAILURE;
 	}
-	private String saveImgFile(Connection con, String auId) throws SQLException {
-		String pFPath ="";
-		String pFExt ="";
+	private String saveImgFile(Connection con, Integer auId) throws SQLException, IOException {
+		String url = "";
+		Integer userCode = Integer.parseInt(""+sessionMap.get("userCode"));
 		try {
-			String filePath = ImageUtil.getDestinationPath("aboutUs", (String)sessionMap.get("userCode"), auId);
-			String destPath = Constants.IMAGES_ROOTPATH+filePath;
-			pFPath = Constants.DB_IMAGES_ROOTPATH+filePath;
-			pFExt = ImageUtil.getExtension(imgFileContentType);
-			ImageUtil.saveImage(imgFile, auId, destPath, pFExt);
-			int pId = PhotoDao.createNew(con, auId, pFPath, pFExt, "AU", auId);
+			Map options = new HashMap();
+			options.put("folder", "dev");
+			Map<String, String> result = CloudinaryUtils.uploadImage(imgFile, options);
+			url = result.get("secure_url");
+			PhotoBean upPhoto = new PhotoBean(result, "AU", auId);
+			int pId = PhotoDao.create(con, upPhoto);
 		} catch (NullPointerException npe) {
 			
 		}
-		return pFPath+auId+pFExt;
+		return url;
 	}
 	
 	@Override
@@ -239,16 +208,16 @@ public class AboutUsAction implements SessionAware {
 	public void setAjaxResponseDummyMsg(String ajaxResponseDummyMsg) {
 		this.ajaxResponseDummyMsg = ajaxResponseDummyMsg;
 	}
-	public String getToBeUpdatedCode() {
+	public Integer getToBeUpdatedCode() {
 		return toBeUpdatedCode;
 	}
-	public void setToBeUpdatedCode(String toBeUpdatedCode) {
+	public void setToBeUpdatedCode(Integer toBeUpdatedCode) {
 		this.toBeUpdatedCode = toBeUpdatedCode;
 	}
-	public String getToBeDeletedCode() {
+	public Integer getToBeDeletedCode() {
 		return toBeDeletedCode;
 	}
-	public void setToBeDeletedCode(String toBeDeletedCode) {
+	public void setToBeDeletedCode(Integer toBeDeletedCode) {
 		this.toBeDeletedCode = toBeDeletedCode;
 	}
 	public int getNewAboutUsCode() {
@@ -257,10 +226,10 @@ public class AboutUsAction implements SessionAware {
 	public void setNewAboutUsCode(int newAboutUsCode) {
 		this.newAboutUsCode = newAboutUsCode;
 	}
-	public String getPageOwnerCode() {
+	public Integer getPageOwnerCode() {
 		return pageOwnerCode;
 	}
-	public void setPageOwnerCode(String pageOwnerCode) {
+	public void setPageOwnerCode(Integer pageOwnerCode) {
 		this.pageOwnerCode = pageOwnerCode;
 	}
 	public String getNewAboutUsPhoto() {

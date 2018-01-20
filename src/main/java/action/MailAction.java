@@ -1,7 +1,7 @@
 package action;
 
+import constants.ResultConstants;
 import util.AutoMailer;
-import util.ResultConstants;
 
 public class MailAction {
 

@@ -22,10 +22,9 @@
 <!-- 
 	Common JS imports: End
  ************************************************-->
- <script type="text/javascript" src="./WelfareCommunity/js/selectize.js"></script>
-<link rel="stylesheet" type="text/css" href="./WelfareCommunity/css/selectize.css" />
+
 <script src="./js/bootstrap-select.js"></script>
-<link href="./WelfareCommunity/css/bootstrap-select.css" rel="stylesheet" type="text/css" />
+<link href="./css/bootstrap-select.css" rel="stylesheet" type="text/css" />
 
 <script>
 
@@ -107,18 +106,18 @@ function performAdvanceSearch(){
 						<select class="selectpicker" id="sCauseList" data-live-search="true" multiple title="All"
 						data-icon-base="fa" data-tick-icon="fa-check-circle-o" data-width='222' data-show-content="true">
 						  <s:iterator value="selectCauseList" var="i">
-						  	<option value="<s:property value='#i.key' />"><s:property value="#i.value" /></option>
+						  	<option value="<s:property value='#i.value' />"><s:property value="#i.value" /></option>
 						  </s:iterator>
 						</select>
 					</div>
 					<div class="col-md-3">
 						State:<br>
-						<s:select list="stateList" id="select-state" placeholder="Pick a state..." name="sState" cssClass="selectpicker" title="All"
+						<s:select list="stateList" id="state" name="sState" cssClass="selectpicker" title="All"
 						value="%{sState}"></s:select>
 					</div>
 					<div class="col-md-3">
 						City:<br>
-						<s:select list="cityList" id="select-city" placeholder="Pick a city..." name="sCity" cssClass="selectpicker" title="All"
+						<s:select list="cityList"  id="city" name="sCity" cssClass="selectpicker" title="All"
 						value="%{sCity}"></s:select>
 					</div>
 					<div class="col-md-2">
@@ -145,39 +144,9 @@ function performAdvanceSearch(){
 			</s:form>
 		</div>
 	</div>
-	<script>
-		var xhr;
-		var select_state, $select_state;
-		var select_city, $select_city;
-		$select_state = $('#select-state').selectize({
-			onChange: function(value) {
-				if (!value.length) return;
-				select_city.disable();
-				select_city.clearOptions();
-				select_city.load(function(callback) {
-					xhr && xhr.abort();
-					xhr = $.ajax({
-						url: 'http://www.corsproxy.com/api.sba.gov/geodata/primary_city_links_for_state_of/' + value + '.json',
-						success: function(results) {
-							select_city.enable();
-							callback(results);
-						},
-						error: function() {
-							callback();
-						}
-					})
-				});
-			}
-		});
-		$select_city = $('#select-city').selectize({
-			valueField: 'name',
-			labelField: 'name',
-			searchField: ['name']
-		});
-		select_city  = $select_city[0].selectize;
-		select_state = $select_state[0].selectize;
-		select_city.disable();
-		</script>
+				
+				
+				
 	<div class="row">
 		<s:if test="hasActionErrors()">
 		   <div class="errors">
@@ -249,10 +218,10 @@ function performAdvanceSearch(){
 		<nav style="width:165px; margin:0px auto;">
 		  <ul class="pagination">
 		    <li <s:if test="%{start==0}">class="disabled"</s:if>>
-		      <a href="./advanceSearch.action?<s:property value="asQuery"/><s:property value="%{start-1}"/>"> Prev </a>
+		      <a href="advanceSearch.action?<s:property value="asQuery"/><s:property value="%{start-1}"/>"> Prev </a>
 		    </li>
 		    <li <s:if test="%{!hasNext}">class="disabled"</s:if>>
-		     <a href="./advanceSearch.action?<s:property value="asQuery"/><s:property value="%{start+1}"/>"> Next </a>
+		     <a href="advanceSearch.action?<s:property value="asQuery"/><s:property value="%{start+1}"/>"> Next </a>
 		 
 		       
 		    </li>

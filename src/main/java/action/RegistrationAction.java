@@ -23,6 +23,9 @@ import beans.AddressBean;
 import beans.CauseBean;
 import beans.NgoBean;
 import config.DBConnection;
+import constants.ConfigConstants;
+import constants.Constants;
+import constants.ResultConstants;
 import dao.AddressDao;
 import dao.AddressMasterDao;
 import dao.CauseDao;
@@ -31,9 +34,7 @@ import dao.PhotoDao;
 import dao.RegistrationDao;
 import dao.UserDao;
 import security.SecurityUtil;
-import util.Constants;
 import util.ImageUtil;
-import util.ResultConstants;
 
 public class RegistrationAction extends ActionSupport implements SessionAware {
 
@@ -67,11 +68,11 @@ public class RegistrationAction extends ActionSupport implements SessionAware {
 	private String imgFileFileName;
 	private String selectedCause;
 	private int ngoNoOfVolunteers;
-	private String pageOwnerCode;
+	private Integer pageOwnerCode;
 	// private String ngoBean.alias;
 
 	private List<NgoBean> autoGenNgos = new ArrayList<NgoBean>();
-	private String fillInId;
+	private Integer fillInId;
 	private NgoBean fillInBean = new NgoBean();
 	private String query;
 	private String autoGenId;
@@ -100,7 +101,7 @@ public class RegistrationAction extends ActionSupport implements SessionAware {
 				areaList = AddressMasterDao.getListOfAreas(conn, selectedPincode);
 				pageHeading = "Become a member of Welfare Community!";
 				if(!"".equals(alreadySetNgoId) && alreadySetNgoId!=null){
-					File logFile = new File(Constants.ROOTPATH+"/logs/auto-visited.csv");
+					File logFile = new File(ConfigConstants.get("ROOTPATH")+"/logs/auto-visited.csv");
 					try(FileOutputStream fosLogs = new FileOutputStream(logFile, true)){
 						fosLogs.write((alreadySetNgoId+","+new Date(System.currentTimeMillis())+"\n").getBytes());
 			         } catch (Exception e) {
@@ -198,7 +199,7 @@ public class RegistrationAction extends ActionSupport implements SessionAware {
 				
 				if(!"".equals(autoGenId) && autoGenId!=null){
 					NgoDao.deleteAutoGenNgo(con, autoGenId);
-					File logFile = new File(Constants.ROOTPATH+"/logs/auto-converted.csv");
+					File logFile = new File(ConfigConstants.get("ROOTPATH")+"/logs/auto-converted.csv");
 					try(FileOutputStream fosLogs = new FileOutputStream(logFile, true)){
 						fosLogs.write((autoGenId+","+new Date(System.currentTimeMillis())+"\n").getBytes());
 			         } catch (Exception e) {
@@ -207,10 +208,8 @@ public class RegistrationAction extends ActionSupport implements SessionAware {
 			         }
 				
 				}
-				String ngoUid = NgoDao.createNew(con, ngoBean.getNgoEmail(), ngoBean.getNgoName(), "",
+				Integer ngoUid = NgoDao.createNew(con, ngoBean.getNgoEmail(), ngoBean.getNgoName(), "",
 						"", 0, ngoBean.getAlias());
-				int pId = saveLogoFile(con, ngoUid);
-				NgoDao.updateLogo(con, ngoUid, pId);
 				
 				AddressDao.createNewAddress(con, ngoUid, addressBean.getStreet(), addressBean.getArea(), addressBean.getPincode(), addressBean.getCity(), addressBean.getState());
 				CauseDao.createNewCause(con, ngoUid, causeBean.getCauseCode());
@@ -256,7 +255,7 @@ public class RegistrationAction extends ActionSupport implements SessionAware {
 			try {
 				con = DBConnection.getConnection();
 				con.setAutoCommit(false);
-				String ngoUid = (String)sessionMap.get("userCode");
+				Integer ngoUid = Integer.parseInt(""+sessionMap.get("userCode"));
 				NgoDao.updateNgo(con, ngoUid, ngoBean.getNgoName(), ngoBean.getAlias(),	ngoBean.getNgoDescription(), ngoBean.getNgoPhone(), ngoBean.getNoOfVolunteers());
 				NgoDao.setNgoAlias(con, ngoUid, ngoBean.getAlias());
 				con.commit();
@@ -286,28 +285,14 @@ public class RegistrationAction extends ActionSupport implements SessionAware {
 			result = ResultConstants.REGISTRATION_ACTION_UPDATE_CANCEL;
 		return result;
 	}
-	private int saveLogoFile(Connection con, String ngoUid) throws SQLException {
-		int pId = 0;
-		try {
-			String filePath = ImageUtil.getDestinationPath("ngo", ngoUid, null);
-			String destPath = Constants.IMAGES_ROOTPATH+filePath;
-			String pFPath = Constants.DB_IMAGES_ROOTPATH+filePath;
-			String pFExt = ImageUtil.getExtension(imgFileContentType);
-			ImageUtil.saveImage(imgFile, "logo", destPath, pFExt);
-			pId = PhotoDao.createNew(con, "logo", pFPath, pFExt, "ngologo", ngoUid);
-		} catch (NullPointerException npe) {
-			
-		}
-		return pId;
-	}
 
 	public String editProfile() {
 		setMode("edit");
 		pageHeading = "Edit your details:";
 		try(Connection conn = DBConnection.getConnection()) {
-			String ngoUid = (String) sessionMap.get("userCode");
+			Integer ngoUid = Integer.parseInt(""+sessionMap.get("userCode"));
 			setNgoBean(NgoDao.getNgoBeanFromId(conn, ngoUid));
-			setPassword(UserDao.getUserPassword(conn, ngoUid));
+			setPassword(UserDao.getUserPassword(conn, ngoBean.getNgoEmail()));
 			execute();
 		} catch (Exception sqle) {
 			sqle.printStackTrace();
@@ -383,11 +368,11 @@ public class RegistrationAction extends ActionSupport implements SessionAware {
 		this.ngoNoOfVolunteers = ngoNoOfVolunteers;
 	}
 
-	public String getPageOwnerCode() {
+	public Integer getPageOwnerCode() {
 		return pageOwnerCode;
 	}
 
-	public void setPageOwnerCode(String pageOwnerCode) {
+	public void setPageOwnerCode(Integer pageOwnerCode) {
 		this.pageOwnerCode = pageOwnerCode;
 	}
 	public HashMap<Integer, String> getNgoCauseList() {
@@ -561,11 +546,11 @@ public class RegistrationAction extends ActionSupport implements SessionAware {
 		this.autoGenNgos = autoGenNgos;
 	}
 
-	public String getFillInId() {
+	public Integer getFillInId() {
 		return fillInId;
 	}
 
-	public void setFillInId(String fillInId) {
+	public void setFillInId(Integer fillInId) {
 		this.fillInId = fillInId;
 	}
 

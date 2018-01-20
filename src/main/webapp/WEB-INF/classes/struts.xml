@@ -259,14 +259,7 @@
 		</action>
 
 
-		<action name="openAboutUs" class="action.AboutUsAction" method="openAboutUs">
-			<interceptor-ref name="guestAuthStack"></interceptor-ref>
-			<result name="success">aboutUs.jsp</result>
-		</action>
-		<action name="editAboutUs" class="action.AboutUsAction" method="editAboutUs">
-			<interceptor-ref name="ownerAuthStack"></interceptor-ref>
-			<result name="success">editAboutUs.jsp</result>
-		</action>
+		
 
 
 		<action name="openContactUs" class="action.ContactUsAction"
@@ -445,16 +438,16 @@
 				<param name="noCache">true</param>
 			</result>
 		</action>
-		<action name="ajaxAddToSlideshowAction" class="action.PhotosAction"
-			method="ajaxAddToSlideshowAction">
+		<action name="ajaxAddToCoverAction" class="action.PhotosAction"
+			method="ajaxAddToCoverAction">
 			<interceptor-ref name="ownerAuthStack"></interceptor-ref>
 			<result type="json">
 				<param name="excludeNullProperties">true</param>
 				<param name="noCache">true</param>
 			</result>
 		</action>
-		<action name="ajaxRemoveFromSlideshowAction" class="action.PhotosAction"
-			method="ajaxRemoveFromSlideshowAction">
+		<action name="ajaxRemoveFromCoverAction" class="action.PhotosAction"
+			method="ajaxRemoveFromCoverAction">
 			<interceptor-ref name="ownerAuthStack"></interceptor-ref>
 			<result type="json">
 				<param name="excludeNullProperties">true</param>

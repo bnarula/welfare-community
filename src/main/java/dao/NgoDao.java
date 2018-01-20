@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
@@ -17,30 +16,33 @@ import beans.AddressBean;
 import beans.CauseBean;
 import beans.EventBean;
 import beans.NgoBean;
-import util.Constants;
+import constants.ConfigConstants;
+import constants.Constants;
 
 public class NgoDao {
 
-	public static String createNew(Connection con, String ngoEmail, String ngoName,
+	public static Integer createNew(Connection con, String ngoEmail, String ngoName,
 			String ngoDescription, String ngoPhone, int ngoNoOfVolunteers, String alias)
 			throws SQLException {
-		String ngoUid = "";
+		Integer ngoUid = 0;
 		try {
-			Statement stmt = con.createStatement();
-			String sql = "insert into ngos_table(ngo_uid, ngo_email, ngo_name, ngo_description, ngo_phone_number, ngo_no_of_volunteers, ngo_alias)"
-					+ " values (?, ?, ?, ?, ?, ?, ?)";
+			String sql = "insert into ngos_table(ngo_email, ngo_name, ngo_description, ngo_phone_number, ngo_no_of_volunteers, ngo_alias)"
+					+ " values ( ?, ?, ?, ?, ?, ?)";
 					
 			PreparedStatement pStmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			pStmt.setString(1, ngoEmail);
-			pStmt.setString(2, ngoEmail);
-			pStmt.setString(3, ngoName);
-			pStmt.setString(4, ngoDescription);
-			pStmt.setString(5, ngoPhone);
-			pStmt.setInt(6, ngoNoOfVolunteers);
-			pStmt.setString(7, alias);
+			pStmt.setString(2, ngoName);
+			pStmt.setString(3, ngoDescription);
+			pStmt.setString(4, ngoPhone);
+			pStmt.setInt(5, ngoNoOfVolunteers);
+			pStmt.setString(6, alias);
 			pStmt.execute();
-			ngoUid = ngoEmail;
+			ResultSet rsGetAutoId = pStmt.getGeneratedKeys();
+			if (rsGetAutoId.next())
+				ngoUid = rsGetAutoId.getInt(1);
+			
 			setNgoAlias(con, ngoUid, alias);
+			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -49,7 +51,7 @@ public class NgoDao {
 		return ngoUid;
 	}
 
-	public static void updateNgo(Connection con, String ngoUid, String ngoName, String ngoAlias, String ngoDescription, String ngoPhone,
+	public static void updateNgo(Connection con, Integer ngoUid, String ngoName, String ngoAlias, String ngoDescription, String ngoPhone,
 			Integer ngoNoOfVolunteers) throws SQLException {
 		PreparedStatement stmt = con.prepareStatement("update ngos_table set ngo_name = ?, ngo_alias=?, ngo_description= ?, ngo_no_of_volunteers=?"
 				+", ngo_phone_number=? where ngo_uid=?");
@@ -59,13 +61,13 @@ public class NgoDao {
 		stmt.setString(3, ngoDescription);
 		stmt.setInt(4, ngoNoOfVolunteers);
 		stmt.setString(5, ngoPhone);
-		stmt.setString(6, ngoUid);
+		stmt.setInt(6, ngoUid);
 		stmt.execute();
 		stmt.close();
 	
 	}
 
-	public static NgoBean getNgoBeanFromId(Connection con, String uid) throws SQLException{
+	public static NgoBean getNgoBeanFromId(Connection con, Integer uid) throws SQLException{
 		NgoBean ngoBean = new NgoBean();
 		Statement stmt = con.createStatement();
 		ResultSet rs = stmt.executeQuery("select * from ngos_table where ngo_uid ='" + uid + "'");
@@ -83,7 +85,7 @@ public class NgoDao {
 		}
 		return ngoBean;
 	}
-	public static NgoBean getNgoBeanFromId(Connection con, String uid, ArrayList<String> selectables)  throws SQLException {
+	public static NgoBean getNgoBeanFromId(Connection con, Integer uid, ArrayList<String> selectables)  throws SQLException {
 		NgoBean ngoBean = new NgoBean();
 		if(selectables.contains("all")){
 			selectables.remove("all");
@@ -196,11 +198,11 @@ public class NgoDao {
 		return ngoBean;
 	}
 
-	public static NgoBean getSessionNgoBeanFromId(Connection con, String uid)  throws SQLException{
+	public static NgoBean getSessionNgoBeanFromId(Connection con, Integer uid)  throws SQLException{
 		NgoBean ngoBean = new NgoBean();
 		ArrayList<String> selectables = new ArrayList<String>();
 		selectables.add("all");
-		ngoBean = NgoDao.getNgosFromIds(con, new String[]{uid}, selectables).get(0);
+		ngoBean = NgoDao.getNgosFromIds(con, new Integer[]{uid}, selectables).get(0);
 		/*Statement stmt = con.createStatement();
 		ResultSet rs = stmt.executeQuery("select ngo_email, ngo_name, ngo_logo_p_id, ngo_phone_number, ngo_alias from ngos_table where ngo_uid ='" + uid + "'");
 		while (rs.next()) {
@@ -213,23 +215,23 @@ public class NgoDao {
 		return ngoBean;
 	}
 
-	public static String getNgoUidFromAlias(Connection con, String alias)  throws SQLException{
-		String uid = "";
+	public static Integer getNgoUidFromAlias(Connection con, String alias)  throws SQLException{
+		Integer uid = 0;
 		Statement stmt = con.createStatement();
 		ResultSet rs = stmt.executeQuery("select ngo_uid_fk, ngo_alias from ngo_alias_table where ngo_alias ='" + alias + "'");
 		if (rs.next()) {
-			uid = rs.getString("ngo_uid_fk");
+			uid = rs.getInt("ngo_uid_fk");
 		}
 		return uid;
 	}
 
 
-	public static List<NgoBean> getNgosFromIds(Connection con, String uid[], List<String> selectables)  throws SQLException{
+	public static List<NgoBean> getNgosFromIds(Connection con, Integer uid[], List<String> selectables)  throws SQLException{
 		//long startTime = System.currentTimeMillis()/1000l;
 		List<NgoBean> ngoBeans = new ArrayList<NgoBean>();
 		String codeString = "";
 		for (int i = 0; i < uid.length; i++) {
-			codeString =  uid[i] + "','" + codeString;
+			codeString =  uid[i] + " , " + codeString;
 		}
 		
 		String joinQuery = "";
@@ -275,10 +277,10 @@ public class NgoDao {
 		selectString = selectables.toString();
 		selectString = selectString.substring(1, selectString.length()-1);
 		Statement stmt = con.createStatement();
-		ResultSet rs = stmt.executeQuery("select "+selectString+" from ngos_table T1 "+joinQuery+" where ngo_uid in ('"
+		ResultSet rs = stmt.executeQuery("select "+selectString+" from ngos_table T1 "+joinQuery+" where ngo_uid in ("
 				+ codeString.substring(0, codeString.length() - 2) + ") ");
 		NgoBean ngoBean = new NgoBean();
-		ngoBean.setUid("-1");
+		ngoBean.setUid(-1);
 		HashSet<String> hsNgo = new HashSet<String>();
 		HashSet<Integer> hsAdd = null;
 		HashSet<Integer> hsCause = null;
@@ -289,7 +291,7 @@ public class NgoDao {
 		while (rs.next()) {
 			if(!hsNgo.contains(rs.getString("ngo_uid"))){
 				ngoBean = new NgoBean();
-				ngoBean.setUid(rs.getString("ngo_uid"));
+				ngoBean.setUid(rs.getInt("ngo_uid"));
 				hsNgo.add(rs.getString("ngo_uid"));
 				ngoBeans.add(ngoBean);
 				hsAdd = new HashSet<Integer>();
@@ -347,21 +349,21 @@ public class NgoDao {
 		return ngoBeans;
 	}
 
-	public static List<String> listAllUserNgos(Connection con, int start, int count)  throws SQLException{
-		List<String> resultList = new ArrayList<String>();
+	public static List<Integer> listAllUserNgos(Connection con, int start, int count)  throws SQLException{
+		List<Integer> resultList = new ArrayList<Integer>();
 		Statement stmt = con.createStatement();
 		ResultSet rs = stmt.executeQuery(
 				"SELECT ngo_uid, ngo_name, ngo_type from ngos_table where ngo_type='user' order by ngo_type, ngo_name limit "+start+","+count);
 		while (rs.next()) {
-			resultList.add(rs.getString("ngo_uid"));
+			resultList.add(rs.getInt("ngo_uid"));
 		}
 		rs.close();
 		stmt.close();
 		return resultList;
 	}
-	public static List<String> searchByName(Connection con, String searchQuery, boolean isUser, int start, int count)  throws SQLException{
+	public static List<Integer> searchByName(Connection con, String searchQuery, boolean isUser, int start, int count)  throws SQLException{
 
-		List<String> resultList = new ArrayList<String>();
+		List<Integer> resultList = new ArrayList<Integer>();
 		Statement stmt = con.createStatement();
 		String strWhere = "";
 		if(isUser)
@@ -369,15 +371,15 @@ public class NgoDao {
 		ResultSet rs = stmt.executeQuery(
 				"SELECT ngo_uid, ngo_name, ngo_type from ngos_table where ngo_name like '" + searchQuery + "%' "+strWhere+"order by ngo_type, ngo_name limit "+start+","+count);
 		while (rs.next()) {
-			resultList.add(rs.getString("ngo_uid"));
+			resultList.add(rs.getInt("ngo_uid"));
 		}
 		rs.close();
 		stmt.close();
 		return resultList;
 	}
 
-	public static List<String> searchByCause(Connection con, String searchQuery, String ngoType, int start, int count)  throws SQLException{
-		List<String> resultList = new ArrayList<String>();
+	public static List<Integer> searchByCause(Connection con, String searchQuery, String ngoType, int start, int count)  throws SQLException{
+		List<Integer> resultList = new ArrayList<Integer>();
 		if(searchQuery.indexOf(",")!=-1){
 			searchQuery = searchQuery.replace(",", "','");
 			searchQuery = "in ('"+searchQuery+"')";
@@ -391,14 +393,14 @@ public class NgoDao {
 						+ "join ngo_causes_table nct on nct.nct_cause_code_fk=cmt.cause_code_pk "
 						+ "where cmt.cause_name "+ searchQuery + " and nct.nct_ngo_type = '"+ngoType+"' order by nct.nct_ngo_uid_fk limit "+start+","+count);
 		while (rs.next())
-			resultList.add(rs.getString("nct.nct_ngo_uid_fk"));
+			resultList.add(rs.getInt("nct.nct_ngo_uid_fk"));
 		rs.close();
 		stmt.close();
 		return resultList;
 	}
-	public static List<String> searchByCauseAndLocation(Connection con, String causeQuery, String locationQuery, String mode, String ngoType, int start, int count) 
+	public static List<Integer> searchByCauseAndLocation(Connection con, String causeQuery, String locationQuery, String mode, String ngoType, int start, int count) 
 			 throws SQLException{
-		List<String> resultList = new ArrayList<String>();
+		List<Integer> resultList = new ArrayList<Integer>();
 		String locationWhere = "";
 		if(causeQuery.indexOf(",")!=-1){
 			causeQuery = causeQuery.replace(",", "','");
@@ -421,13 +423,13 @@ public class NgoDao {
 						//						+ " and cmt.cause_name "+ causeQuery + /*" and nct.nct_ngo_type = '"+ngoType+"' */" order by nct.nct_ngo_uid_fk, nct.nct_ngo_type desc limit "+start+",5");
 	
 		while (rs.next())
-			resultList.add(rs.getString("nct.nct_ngo_uid_fk"));
+			resultList.add(rs.getInt("nct.nct_ngo_uid_fk"));
 		rs.close();
 		stmt.close();
 		return resultList;
 	}
-	public static List<String> searchByLocation(Connection con, String mode, String searchQuery, String ngoType, int start, int count)  throws SQLException{
-		List<String> resultList = new ArrayList<String>();
+	public static List<Integer> searchByLocation(Connection con, String mode, String searchQuery, String ngoType, int start, int count)  throws SQLException{
+		List<Integer> resultList = new ArrayList<Integer>();
 		String strWhere = "";
 		if (mode.equalsIgnoreCase("all"))
 			strWhere = "amt.add_area like '%" + searchQuery + "%' or amt.add_city like '%" + searchQuery
@@ -446,7 +448,7 @@ public class NgoDao {
 				+ "on amt.add_code_pk=nat.add_master_code_fk "
 				+ "where " + strWhere +pincodeWhere+" order by nat.add_ngo_code_fk limit "+start+","+count);
 		while (rs.next())
-			resultList.add(rs.getString("add_ngo_code_fk"));
+			resultList.add(rs.getInt("add_ngo_code_fk"));
 		rs.close();
 		stmt.close();
 		return resultList;
@@ -506,7 +508,7 @@ public class NgoDao {
 
 	}
 
-	public static List<EventBean> getListOfEvents(Connection con, String ngoUid, boolean isOwner, int eventMonth, int eventYear, int start, int count) throws SQLException {
+	public static List<EventBean> getListOfEvents(Connection con, Integer ngoUid, boolean isOwner, int eventMonth, int eventYear, int start, int count) throws SQLException {
 		// TODO Auto-generated method stub
 		Statement stmt = null;
 		List<EventBean> eventList = new ArrayList<EventBean>();
@@ -516,7 +518,7 @@ public class NgoDao {
 		String whereClause = "where";
 		if(!isOwner)
 			whereClause += " (evt_status<>'"+Constants.EVENTBEAN_STATUS_CREATE+"')";
-		if(!ngoUid.equals("")){
+		if(ngoUid != 0){
 			if(!isOwner)
 				whereClause += " and ";
 			whereClause += " evt_organizer_code_fk='" + ngoUid + "'";
@@ -553,7 +555,7 @@ public class NgoDao {
 			evtAddressBean.setStreet(rs.getString("evt_venue"));
 			eventList.add(new EventBean(rs.getInt("evt_code_pk"), rs.getString("evt_name"),
 					rs.getString("evt_details"), calendar, evtAddressBean,
-					rs.getString("evt_time"), rs.getString("evt_organizer_code_fk"),
+					rs.getString("evt_time"), rs.getInt("evt_organizer_code_fk"),
 					PhotoDao.getUrlFromPhotoId(con, rs.getInt("evt_dp_p_id"), true),"", rs.getString("evt_status")));
 		}
 
@@ -563,31 +565,41 @@ public class NgoDao {
 
 	
 
-	public static int getCountOfSlideshowPhotos(Connection con, String ngoUid) throws SQLException {
+	public static int getCountOfCoverPhotos(Connection con, Integer ngoUid) throws SQLException {
 		// TODO Auto-generated method stub
 		Statement stmt = null;
 		int count = 0;
 		stmt = con.createStatement();
-		ResultSet rs = stmt.executeQuery("select count(p_id) as pcount from photo_table where p_owner_id='" + ngoUid
-				+ "' and p_category='slideshow'");
+		ResultSet rs = stmt.executeQuery("select count(id) as pcount from photo_table where owner_id=" + ngoUid
+				+ " and is_cover=1");
 		if (rs.next()) {
 			count = rs.getInt("pcount");
 		}
 		return count;
 	}
-
-	public static void updateLogo(Connection conn, String ngoUid, int pId) throws SQLException{
+	public static String getLogoPublicId(Connection conn, Integer ngoUid) throws SQLException{
+		String logoId = "";
+		PreparedStatement stmt = conn.prepareStatement("select ngo_uid, ngo_logo_p_id, public_id"
+				+ " from ngos_table join photo_table on ngo_logo_p_id = id where ngo_uid=? and category = 'ngoLogo'");
+		stmt.setInt(1, ngoUid);
+		ResultSet rs = stmt.executeQuery();
+		if(rs.next()){
+			logoId = rs.getString("public_id");
+		}
+		return logoId;
+	}
+	public static void updateLogo(Connection conn, Integer ngoUid, int pId) throws SQLException{
 		PreparedStatement stmt = conn.prepareStatement("update ngos_table set ngo_logo_p_id =? where ngo_uid=?");
 		stmt.setInt(1, pId);
-		stmt.setString(2, ngoUid);
+		stmt.setInt(2, ngoUid);
 		stmt.executeUpdate();
 	}
 
-	public static boolean isAppreciated(Connection conn, String userCode, String ngoUid) throws SQLException {
+	public static boolean isAppreciated(Connection conn, Integer userCode, Integer pageOwnerCode) throws SQLException {
 		PreparedStatement stmt = conn.prepareStatement("select app_by_uid, app_to_ngo_uid_fk from appreciation_table"
 				+ " where app_by_uid = ? and app_to_ngo_uid_fk = ?");
-		stmt.setString(1, userCode);
-		stmt.setString(2, ngoUid);
+		stmt.setInt(1, userCode);
+		stmt.setInt(2, pageOwnerCode);
 		ResultSet rs = stmt.executeQuery();
 		return rs.next();
 	}
@@ -602,24 +614,24 @@ public class NgoDao {
 		while(rs.next()){
 			NgoBean nb = new NgoBean();
 			nb.setNgoName(rs.getString("ngo_name"));
-			nb.setUid(rs.getString("ngo_uid"));
+			nb.setUid(rs.getInt("ngo_uid"));
 			list.add(nb);
 		}
 		return list;
 	}
 
-	public static void deleteNgo(Connection conn, String ngoUid) throws SQLException {
+	public static void deleteNgo(Connection conn, Integer ngoUid) throws SQLException {
 		PreparedStatement stmt = conn.prepareStatement("select evt_code_pk, evt_organizer_code_fk from events_table where evt_organizer_code_fk = ?");
-		stmt.setString(1, ngoUid);
+		stmt.setInt(1, ngoUid);
 		ResultSet rs = stmt.executeQuery();
 		String folderPath = "";
 		while(rs.next()){
-			folderPath = Constants.ROOTPATH+"/images/"+ngoUid+"/events/"+rs.getInt("evt_code_pk")+"/";
-			EventDao.deleteEvent(conn, rs.getInt("evt_code_pk"), folderPath);
+			folderPath = ConfigConstants.get("ROOTPATH")+"/images/"+ngoUid+"/events/"+rs.getInt("evt_code_pk")+"/";
+			EventDao.deleteEvent(conn, rs.getInt("evt_code_pk"), ngoUid);
 		}
 		ArrayList<File> filesToDelete = new ArrayList<File>();
 			try {
-				folderPath = Constants.ROOTPATH+"/images/"+ngoUid;
+				folderPath = ConfigConstants.get("ROOTPATH")+"/images/"+ngoUid;
 				File imagesFolder = new File(folderPath);
 				for(File item : imagesFolder.listFiles()){
 					filesToDelete.add(item);
@@ -636,19 +648,19 @@ public class NgoDao {
 			}
 		stmt.close();
 		stmt = conn.prepareStatement("delete from photo_table where p_owner_id=?");
-		stmt.setString(1, ngoUid);
+		stmt.setInt(1, ngoUid);
 		stmt.execute();
 		stmt.close();
 		stmt = conn.prepareStatement("delete from ngos_table where ngo_uid=?");
-		stmt.setString(1, ngoUid);
+		stmt.setInt(1, ngoUid);
 		stmt.execute();
 		stmt.close();
 		stmt = conn.prepareStatement("delete from users_table where usr_uid=?");
-		stmt.setString(1, ngoUid);
+		stmt.setInt(1, ngoUid);
 		stmt.execute();
 		stmt.close();
 		stmt = conn.prepareStatement("delete from appreciation_table where app_by_uid=?");
-		stmt.setString(1, ngoUid);
+		stmt.setInt(1, ngoUid);
 		stmt.execute();
 		stmt.close();
 		conn.commit();
@@ -667,9 +679,9 @@ public class NgoDao {
 		
 	}
 
-	public static void setNgoAlias(Connection con, String ngoUid, String alias) throws SQLException {
+	public static void setNgoAlias(Connection con, Integer ngoUid, String alias) throws SQLException {
 		PreparedStatement stmt = con.prepareStatement("insert into ngo_alias_table (ngo_uid_fk, ngo_alias) values(?, ?)");
-		stmt.setString(1, ngoUid);
+		stmt.setInt(1, ngoUid);
 		stmt.setString(2, alias);
 		stmt.execute();
 		stmt.close();

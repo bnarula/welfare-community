@@ -212,10 +212,6 @@
 		</div>
 		<div class="col-md-6  col-sm-6">
 			            
-		   
-						      		
-						      		
-						      	
 			<div class="row">
 				<div class="col-md-8 col-sm-8">
 					<div class="panel panel-default col-md-12" style="height:391px;">

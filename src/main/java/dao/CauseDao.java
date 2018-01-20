@@ -56,12 +56,12 @@ public class CauseDao {
 		stmt.close();
 		return result;
 	}
-	public static Integer createNewCause(Connection con, String ngoUid, int causeCode) throws SQLException {
+	public static Integer createNewCause(Connection con, Integer ngoUid, int causeCode) throws SQLException {
 		Integer result = new Integer("-1");
 		Statement stmt=con.createStatement();
 		try {
 			stmt.execute("insert into ngo_causes_table(nct_ngo_uid_fk, nct_cause_code_fk)"
-					+ " values ('"+ngoUid+"',"+causeCode+")");
+					+ " values ("+ngoUid+","+causeCode+")");
 			result = Integer.valueOf(causeCode);
 		} catch (SQLIntegrityConstraintViolationException e) {
 			
@@ -69,14 +69,14 @@ public class CauseDao {
 		stmt.close();
 		return result;
 	}
-	public static void deleteCause(Connection conn, String ngoUid, String[] currentCauseCode) throws SQLException {
+	public static void deleteCause(Connection conn, Integer ngoUid, String[] currentCauseCode) throws SQLException {
 		String codeString = "";
 		for (int i = 0; i < currentCauseCode.length; i++) {
 			codeString =  currentCauseCode[i] + "," + codeString;
 		}
 		Statement stmt = conn.createStatement();
 		stmt.execute("delete from ngo_causes_table where nct_cause_code_fk in (" +codeString.substring(0, codeString.length()-1)+ ") "
-				+ "and nct_ngo_uid_fk='"+ngoUid+"'");
+				+ "and nct_ngo_uid_fk="+ngoUid);
 		stmt.close();
 	}
 

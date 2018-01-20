@@ -15,16 +15,15 @@ import beans.AboutUsBean;
 
 public class AboutUsDao {
 
-	public static List<AboutUsBean> getAboutUsList(Connection con, String ngoEmail, int start, int count) throws SQLException {
+	public static List<AboutUsBean> getAboutUsList(Connection con, Integer uid, int start, int count) throws SQLException {
 		PreparedStatement stmt = null;
 		List<AboutUsBean> aboutUsList = new ArrayList<AboutUsBean>();
 		stmt = con.prepareStatement("select au_code, au_ngo_uid_fk, au_heading, au_content, au_created_on, au_is_pinned, "
-				+ "p_file_name, p_file_path, p_file_extension, p_category"
+				+ "p.url, p.owner_id"
 				+ " from about_us_table "
-				+ "join photo_table on p_owner_id = au_code "
-				//+ "where au_ngo_uid_fk=? and p_category = 'AU' order by au_is_pinned desc, au_created_on desc limit "+start+","+count);
-				+ "where au_ngo_uid_fk=? and p_category = 'AU' order by au_code limit "+start+","+count);
-		stmt.setString(1, ngoEmail);
+				+ "left join photo_table p on au_code = p.owner_id and category = 'AU' "
+				+ "where au_ngo_uid_fk=? order by au_code limit "+start+","+count);
+		stmt.setInt(1, uid);
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
 			String content = rs.getString("au_content");
@@ -32,7 +31,7 @@ public class AboutUsDao {
 			createdOn.setTimeInMillis(rs.getDate("au_created_on").getTime());
 			aboutUsList.add(new AboutUsBean(rs.getInt("au_code"), rs.getString("au_ngo_uid_fk"),
 					rs.getString("au_heading"),content, 
-					rs.getString("p_file_path")+rs.getString("p_file_name")+"_thumb"+rs.getString("p_file_extension"), 
+					rs.getString("url"), 
 					createdOn, rs.getBoolean("au_is_pinned")));
 		}
 		//aboutUsList.sort(AboutUsBean.DEFAULT_SORT);
@@ -80,7 +79,7 @@ public class AboutUsDao {
 		stmt.setString(2, userCode);
 		stmt.executeUpdate();
 	}
-	public static boolean updateThisAboutUs(Connection con, String toBeUpdatedCode, String newAboutUsHeading, String newAboutUsContent, Calendar createdOn, String userCode) throws SQLException {
+	public static boolean updateThisAboutUs(Connection con, Integer toBeUpdatedCode, String newAboutUsHeading, String newAboutUsContent, Calendar createdOn, Integer userCode) throws SQLException {
 		// TODO Auto-generated method stub
 		java.sql.Date sqlDate = new java.sql.Date(createdOn.getTime().getTime());
 		PreparedStatement stmt = null;
@@ -88,21 +87,32 @@ public class AboutUsDao {
 		stmt.setString(1, newAboutUsHeading);
 		stmt.setString(2, newAboutUsContent);
 		stmt.setDate(3, sqlDate);
-		stmt.setInt(4, Integer.parseInt(toBeUpdatedCode));
-		stmt.setString(5, userCode);
+		stmt.setInt(4, toBeUpdatedCode);
+		stmt.setInt(5, userCode);
 		stmt.executeUpdate();
 		stmt.close();
 		return true;
 	}
 
-	public static boolean deleteThisAboutUs(Connection con, String toBeDeletedCode, String userCode) throws SQLException {
+	public static boolean deleteThisAboutUs(Connection con, Integer toBeDeletedCode, Integer userCode) throws SQLException {
 		PreparedStatement stmt = null;
 		stmt =  con.prepareStatement("delete from about_us_table where au_code=? and au_ngo_uid_fk=?");
-		stmt.setInt(1, Integer.parseInt(toBeDeletedCode));
-		stmt.setString(2, userCode);
+		stmt.setInt(1, toBeDeletedCode);
+		stmt.setInt(2, userCode);
 		stmt.execute();
-		stmt.close();
 		return true;
+	}
+
+	public static String getPhotoPublicId(Connection conn, Integer auCode) throws SQLException {
+		String logoId = "";
+		PreparedStatement stmt = conn.prepareStatement("select public_id, id, owner_id, category "
+				+ " from photo_table where owner_id=? and category = 'AU'");
+		stmt.setInt(1, auCode);
+		ResultSet rs = stmt.executeQuery();
+		if(rs.next()){
+			logoId = rs.getString("public_id");
+		}
+		return logoId;
 	}
 	
 

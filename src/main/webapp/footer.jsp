@@ -49,7 +49,7 @@ $('.vertical-heading').css({width : vHeadingWidth});
 				  </a>
 			  </li>
 			  <li class="list-group-item"><a href="<s:url action='getAllWCPhotos'>
-			   		<s:param name="from">all</s:param>
+			   		<s:param name="from">wall</s:param>
 	              </s:url>" title="View All">
 							Welfare Community Wall
 				  </a>

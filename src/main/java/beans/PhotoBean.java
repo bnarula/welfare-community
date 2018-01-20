@@ -1,40 +1,68 @@
 package beans;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
+
 public class PhotoBean {
 
-	private String id;
+	private Integer id;
+	private String publicId;
 	private String url;
-	private String name;
-	private String extension;
-	private boolean thumb;
-	private String path;
-	
+	private String thumbUrl;
+	private String fileName;
+	private Date createdAt;
+	private String category;
+	private Integer ownerId;
+	private boolean cover;
 	public PhotoBean(){
 		
 	}
-	
-	public PhotoBean(String id, String url) {
+	public PhotoBean(Map<String, String> result, String category, Integer owner){
+		DateFormat df = new SimpleDateFormat(); 
+		Date createdAt = new Date();
+		try {
+			createdAt = df.parse(result.get("created_at"));
+		} catch (ParseException e) {
+		    //e.printStackTrace();
+		    createdAt = new Date();
+		}
+		String url = result.get("secure_url");
+		String thumbUrl = url.replace("upload/", "upload/c_limit,h_60,w_90/");
+		this.id = 0; 
+		this.publicId = result.get("public_id");
+		this.url = url;
+		this.thumbUrl = thumbUrl;
+		this.createdAt = createdAt;
+		this.fileName = result.get("original_filename");
+		this.category = category;
+		this.ownerId = owner;
+	}
+	public PhotoBean(Integer id, String url) {
 		super();
 		this.id = id;
 		this.url = url;
 	}
-	
-	
-	public PhotoBean(String id, String url, String name, String extension, boolean thumb, String path) {
+
+	public PhotoBean(Integer id, String publicId, String url, String thumbUrl, String fileName, Date createdAt,
+			String category, Integer ownerId) {
 		super();
 		this.id = id;
+		this.publicId = publicId;
 		this.url = url;
-		this.name = name;
-		this.extension = extension;
-		this.thumb = thumb;
-		this.path = path;
+		this.thumbUrl = thumbUrl;
+		this.fileName = fileName;
+		this.createdAt = createdAt;
+		this.category = category;
+		this.ownerId = ownerId;
 	}
 
-
-	public String getId() {
+	public Integer getId() {
 		return id;
 	}
-	public void setId(String id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 	public String getUrl() {
@@ -43,29 +71,60 @@ public class PhotoBean {
 	public void setUrl(String url) {
 		this.url = url;
 	}
-	public String getName() {
-		return name;
+
+	public String getPublicId() {
+		return publicId;
 	}
-	public void setName(String name) {
-		this.name = name;
+
+	public void setPublicId(String publicId) {
+		this.publicId = publicId;
 	}
-	public String getExtension() {
-		return extension;
+
+	public String getThumbUrl() {
+		return thumbUrl;
 	}
-	public void setExtension(String extension) {
-		this.extension = extension;
+
+	public void setThumbUrl(String thumbUrl) {
+		this.thumbUrl = thumbUrl;
 	}
-	public boolean isThumb() {
-		return thumb;
+
+	public String getFileName() {
+		return fileName;
 	}
-	public void setThumb(boolean thumb) {
-		this.thumb = thumb;
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
 	}
-	public String getPath() {
-		return path;
+
+	public Date getCreatedAt() {
+		return createdAt;
 	}
-	public void setPath(String path) {
-		this.path = path;
+
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
 	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
+	public Integer getOwnerId() {
+		return ownerId;
+	}
+
+	public void setOwnerId(Integer ownerId) {
+		this.ownerId = ownerId;
+	}
+	public boolean isCover() {
+		return cover;
+	}
+	public void setCover(boolean cover) {
+		this.cover = cover;
+	}
+
 	
 }

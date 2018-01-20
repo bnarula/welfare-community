@@ -22,21 +22,23 @@ public class GuestAuthInterceptor  extends AbstractInterceptor {
                 Map<String, Object> sessionMap = invocation.getInvocationContext().getSession();
                 Map<String, Parameter> params = ActionContext.getContext().getParameters();
                 
-                String pageOwnerCode = "";
+                Integer pageOwnerCode = 0;
                 try(Connection conn = DBConnection.getConnection()) {
-                	String userCode = (String)sessionMap.get("userCode");
+                	String role = "";
+                	Integer userCode = 0;
+                	
                 	if(params.get("pageOwnerCode").getValue()==null)
                 	{
                 		if(!sessionMap.containsKey("pageOwnerCode"))
                     	{
-                			pageOwnerCode = "";
+                			pageOwnerCode = 0;
                     	}
                 	}
                 	else
                 	{
-                		pageOwnerCode = params.get("pageOwnerCode").getValue();
+                		pageOwnerCode = Integer.parseInt(params.get("pageOwnerCode").getValue());
                 		if(!sessionMap.containsKey("pageOwnerBean") 
-                				|| !((NgoBean)sessionMap.get("pageOwnerBean")).getUid().equalsIgnoreCase(pageOwnerCode)
+                				|| !(((NgoBean)sessionMap.get("pageOwnerBean")).getUid().equals(pageOwnerCode))
                 				|| Boolean.parseBoolean(""+sessionMap.get("isUserModified")))
                 		{
                 			NgoBean sessionBean = NgoDao.getSessionNgoBeanFromId(conn, pageOwnerCode);
@@ -44,17 +46,19 @@ public class GuestAuthInterceptor  extends AbstractInterceptor {
                 			sessionMap.put("isUserModified", false);
                 		}
                 	}
-                	sessionMap.put("isUserAppreciated", NgoDao.isAppreciated(conn, userCode, pageOwnerCode));
-					String role = "";
-					if(sessionMap.isEmpty() || userCode==null || "".equals(userCode)){
-						role = "Guest";
-					}
-					else{
-						if(userCode.equalsIgnoreCase(pageOwnerCode))
-							role = "Owner";
-						else
-							role = "Visitor";
-					}
+                	
+                	if(sessionMap.get("userCode") == null){
+                		role = "Guest";
+                		sessionMap.put("isUserAppreciated", false);
+                	} else {
+                		userCode = Integer.parseInt(""+sessionMap.get("userCode"));
+                		sessionMap.put("isUserAppreciated", NgoDao.isAppreciated(conn, userCode, pageOwnerCode));
+    					if(userCode.equals(pageOwnerCode))
+    						role = "Owner";
+    					else
+    						role = "Visitor";
+                	}
+                 	
 					
 					if(role.equalsIgnoreCase("Guest"))
 					{

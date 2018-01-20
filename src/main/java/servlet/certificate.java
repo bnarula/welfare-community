@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import util.Constants;
+
 import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -16,6 +16,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
+
+import constants.ConfigConstants;
+import constants.Constants;
  
 @WebServlet(name = "certificate",urlPatterns = {"/.well-known/*"})
 @MultipartConfig
@@ -50,7 +53,7 @@ public class certificate extends HttpServlet {
  
     String filePath = request.getRequestURI();
  
-    File file = new File(Constants.ROOTPATH + filePath);
+    File file = new File(ConfigConstants.get("ROOTPATH") + filePath);
    
     InputStream input = new FileInputStream(file);
  

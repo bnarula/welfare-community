@@ -1,38 +1,45 @@
 package dao;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 
 import beans.VolunteerBean;
-import security.SecurityUtil;
-import util.Constants;
+import constants.Constants;
 
 public class VolunteerDao {
 
-	public static String createNew(Connection conn, VolunteerBean volunteerBean, Integer pId) throws SQLException {
-		// TODO Auto-generated method stub
-		String id = SecurityUtil.encrypt(volunteerBean.getEmail());
-		Statement stmt = conn.createStatement();
+	public static Integer createNew(Connection conn, VolunteerBean volunteerBean) throws SQLException {
+		Integer id = 0;
+		PreparedStatement stmt = null;
 		try {
-			stmt.execute("insert into volunteer_table() "
-					+ "values('"+id+"','"+volunteerBean.getEmail()+"','"+volunteerBean.getName()
-					+"','"+volunteerBean.getContact()+"',"+volunteerBean.getAge()+","+pId+",'"+volunteerBean.getGender()+"', 1)");
-		} catch (SQLIntegrityConstraintViolationException e) {
+			stmt = conn.prepareStatement("insert into volunteer_table(v_email, v_name, v_phone, v_phone, v_gender) "
+					+ "values(?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS  );
+			stmt.setString(1, volunteerBean.getEmail());
+			stmt.setString(2, volunteerBean.getName());
+			stmt.setString(3, volunteerBean.getContact());
+			stmt.setInt(4, volunteerBean.getAge());
+			stmt.setString(5, volunteerBean.getGender());
 			
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
+			stmt.execute();
+			ResultSet rsGetAutoId = stmt.getGeneratedKeys();
+			if (rsGetAutoId.next())
+				id = rsGetAutoId.getInt(1);
+			stmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 		return id;
 	}
 
-	public static boolean newApplication(Connection conn, int eventId, String vId) throws SQLException {
+	public static boolean newApplication(Connection conn, int eventId, Integer vId) throws SQLException {
 		try {	
 			Statement stmt = conn.createStatement();
 			stmt.execute("insert into event_volunteer_table (e_v_event_id_fk, e_v_vol_id_fk, e_v_status) values("
-					+eventId+", '"+vId+"', '"+Constants.APPLICATION_STATUS_UNVERIFIED+"')");
+					+eventId+", "+vId+", '"+Constants.APPLICATION_STATUS_UNVERIFIED+"')");
 			stmt.close();
 			return true;
 			} catch (SQLIntegrityConstraintViolationException e) {
@@ -40,7 +47,7 @@ public class VolunteerDao {
 		}
 	}
 
-	public static VolunteerBean getVolunteerBean(Connection conn, String vId) throws SQLException {
+	public static VolunteerBean getVolunteerBean(Connection conn, Integer vId) throws SQLException {
 		// TODO Auto-generated method stub
 		Statement stmt = conn.createStatement();
 		VolunteerBean vBean = null;
@@ -62,6 +69,20 @@ public class VolunteerDao {
 			return true;
 		else
 			return false;
+	}
+
+	public static void updatePhoto(Connection conn, Integer vId, int pId) {
+
+		PreparedStatement stmt = null;
+		try {
+			stmt = conn.prepareStatement("update volunteer_table set v_photo_id = ? where v_uid = ?");
+			stmt.setInt(1, pId);
+			stmt.setInt(2, vId);
+			stmt.executeUpdate();
+			stmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

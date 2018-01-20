@@ -15,7 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
-import util.Constants;
+import constants.ConfigConstants;
+import constants.Constants;
  
 @WebServlet(name = "uploads",urlPatterns = {"/uploads/*"})
 @MultipartConfig
@@ -44,7 +45,7 @@ public class Uploads extends HttpServlet {
 	    	filePath = filePath.substring(0, indxOfEvents)+filePath.substring(indxOfEvents+6);
 	    }
     	
-		File file = new File(Constants.IMAGES_ROOTPATH + filePath);
+		File file = new File(ConfigConstants.get("IMAGES_ROOTPATH") + filePath);
 	
 		//File file = new File(System.getenv("OPENSHIFT_DATA_DIR") + filePath.replace("/uploads/",""));
 	    InputStream input = new FileInputStream(file);

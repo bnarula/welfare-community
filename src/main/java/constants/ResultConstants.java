@@ -1,4 +1,4 @@
-package util;
+package constants;
 
 public class ResultConstants {
 
@@ -11,4 +11,5 @@ public class ResultConstants {
 	public static final String REGISTRATION_ACTION_UPDATE_SUCCESS = "raus";
 	public static final String REGISTRATION_ACTION_UPDATE_FAILURE = "rauf";
 	public static final String REGISTRATION_ACTION_UPDATE_CANCEL = "rauc";
+	public static final String ILLEGAL_ACCESS = "IllegalAccess";
 }

@@ -389,7 +389,7 @@ $(document).ready(function() {
 				  		if(<%=!((String)request.getAttribute("mode")).equals("create")%>)
 				  			return false;
 				  		if($el[0].value){
-				  			$.ajaxSetup({async: false});
+				  			//$.ajaxSetup({async: false});
 					  		$.getJSON('emailValidationAction', {"ngoBean.ngoEmail" : $el[0].value, "notValidate": oEmail},
 				  				function(jsonResponse) {
 					  				if(jsonResponse.ajaxResponseDummyMsg=="validEmail")
@@ -397,7 +397,7 @@ $(document).ready(function() {
 					  				else
 					  					result = "This email is already registered with us. ";
 								});
-					  		$.ajaxSetup({async: true});
+					  		//$.ajaxSetup({async: true});
 				  		}
 				  		return result;
 				  	},
@@ -406,7 +406,7 @@ $(document).ready(function() {
 				  		var result = false;
 				  		// if(<%=!((String)request.getAttribute("mode")).equals("create")%>)
 				  		//	return false; --%>
-			  			$.ajaxSetup({async: false});
+			  			//$.ajaxSetup({async: false});
 				  		if($el[0].value){
 				  			$.getJSON('aliasNameValidationAction', {"ngoBean.alias" : $el[0].value, "notValidate": oAlias},
 				  				function(jsonResponse) {
@@ -416,7 +416,7 @@ $(document).ready(function() {
 					  					result = "This Alias name is already used, Please enter a different one!";
 								});
 				  		}
-				  		$.ajaxSetup({async: true});
+				  		//$.ajaxSetup({async: true});
 				  		return result;
 				  	},
 				  	imgFileValidator : function($el){

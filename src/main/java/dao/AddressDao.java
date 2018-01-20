@@ -10,7 +10,7 @@ import beans.AddressBean;
 
 public class AddressDao {
 
-	public static int createNewAddress(Connection con, String ngoUid, String street, String area, int pincode, String city, String state ) throws SQLException
+	public static int createNewAddress(Connection con, Integer ngoUid, String street, String area, int pincode, String city, String state ) throws SQLException
 	{
 		int result = -1;
 		PreparedStatement stmt = 
@@ -21,7 +21,7 @@ public class AddressDao {
 		stmt.setInt(3, pincode);
 		stmt.setString(4, city);
 		stmt.setString(5, state);
-		stmt.setString(6, ngoUid);
+		stmt.setInt(6, ngoUid);
 		stmt.execute();
 		ResultSet rsGetAutoId = stmt.getGeneratedKeys();
 		if (rsGetAutoId.next())

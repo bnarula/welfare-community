@@ -1,7 +1,6 @@
 package action;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -13,15 +12,13 @@ import java.util.Map;
 
 import com.opensymphony.xwork2.ActionSupport;
 
-import beans.AddressBean;
-import beans.CauseBean;
 import beans.NgoBean;
 import config.DBConnection;
+import constants.Constants;
+import constants.ResultConstants;
 import dao.AddressMasterDao;
 import dao.CauseDao;
 import dao.NgoDao;
-import util.Constants;
-import util.ResultConstants;
 
 public class SearchAction extends ActionSupport{
 	
@@ -87,7 +84,7 @@ public class SearchAction extends ActionSupport{
 			if(searchAction.equals("as")){
 				return "noresults";
 			}
-			List<String> resultList = new ArrayList<String>();
+			List<Integer> resultList = new ArrayList<Integer>();
 			if(!searchAction.equals("sbc1") && !searchAction.equals("sbn")){
 				asQuery = "sCauseList="+sCauseList+"&searchAction="
 						+searchAction+"&sState="+sState+"&sCity="+sCity+"&profileType="+profileType+"&start=";
@@ -135,7 +132,7 @@ public class SearchAction extends ActionSupport{
 				selectables.add(Constants.NGOBEAN_TYPE);
 				selectables.add(Constants.NGOBEAN_ADDRESS_LIST);
 				selectables.add(Constants.NGOBEAN_CAUSE_LIST);
-				String array[] = new String[resultList.size()];
+				Integer array[] = new Integer[resultList.size()];
 				for(int i = 0 ; i < array.length ; i++){
 					array[i] = resultList.get(i);
 				}

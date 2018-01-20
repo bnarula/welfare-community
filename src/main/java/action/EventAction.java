@@ -1,20 +1,23 @@
 package action;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.EnumSet;
+import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.struts2.dispatcher.SessionMap;
 import org.apache.struts2.interceptor.SessionAware;
@@ -22,20 +25,18 @@ import org.apache.struts2.interceptor.SessionAware;
 import com.opensymphony.xwork2.ActionSupport;
 
 import beans.AddressBean;
-import beans.CauseBean;
 import beans.EventBean;
 import beans.NgoBean;
+import beans.PhotoBean;
 import beans.VolunteerBean;
 import config.DBConnection;
-import dao.AddressDao;
+import constants.Constants;
+import constants.ResultConstants;
 import dao.AddressMasterDao;
-import dao.CauseDao;
 import dao.EventDao;
 import dao.NgoDao;
 import dao.PhotoDao;
-import util.Constants;
-import util.ImageUtil;
-import util.ResultConstants;
+import util.CloudinaryUtils;
 
 public class EventAction extends ActionSupport implements SessionAware{
 	private EventBean eventBean = new EventBean();
@@ -53,7 +54,7 @@ public class EventAction extends ActionSupport implements SessionAware{
 	private String organizerName;
 	
 	private String token;
-	private String pageOwnerCode; 
+	private Integer pageOwnerCode; 
 	
 	private int noOfNewApplications;
 	private int noOfAcceptedApplications;
@@ -107,29 +108,28 @@ public class EventAction extends ActionSupport implements SessionAware{
 		setNewEventFormAction("createNewEvent");
 		return ResultConstants.SUCCESS;
 	}
-	public String createNewEvent()
+	public String createNewEvent() throws IOException, SQLException
 	{
-		String ngoUid = (String)(sessionMap.get("userCode"));
+		Integer ngoUid = Integer.parseInt(""+(sessionMap.get("userCode")));
 		setPageOwnerCode(ngoUid);
-		try(Connection conn = DBConnection.getConnection())
+		Connection conn = DBConnection.getConnection();
+		try
 		{
 			conn.setAutoCommit(false);
 			eventId = EventDao.createNewEvent(conn, eventBean, ngoUid);
 			eventBean.setId(eventId);
-			String filePath = ImageUtil.getDestinationPath("event", ngoUid, ""+eventId);
-			String destPath = Constants.IMAGES_ROOTPATH+filePath;
-			String pFPath = Constants.DB_IMAGES_ROOTPATH+filePath;
-		    try{
-		    	String pFExt = ImageUtil.getExtension(imgFileContentType);
-		    	ImageUtil.saveImage(imgFile, "eventDp", destPath, pFExt);
-		    	EventDao.updateImageURL(conn, eventId,"eventDp", pFPath, pFExt);
-		    }
-		    catch(NullPointerException npe)
-		    {
-		    } 
+			Map options = new HashMap();
+			options.put("folder", "dev");
+			Map<String, String> result = CloudinaryUtils.uploadImage(imgFile, options);
+			PhotoBean upPhoto = new PhotoBean(result, "eventDp", eventId);
+			int pId = PhotoDao.create(conn, upPhoto);
+			EventDao.updateLogo(conn, eventId, pId);
 		    conn.commit();
+		    conn.setAutoCommit(true);
+		    conn.close();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			conn.rollback();
+			conn.close();
 			e.printStackTrace();
 			return ResultConstants.FAILURE;
 		}
@@ -159,26 +159,9 @@ public class EventAction extends ActionSupport implements SessionAware{
 				eventDate.set(Calendar.MINUTE, 0);
 				eventDate.set(Calendar.HOUR, 0);
 				eventDate.set(Calendar.SECOND, 0);
-			/*	long diffInMillies = today.getTimeInMillis() - eventDate.getTimeInMillis();
-			    List<TimeUnit> units = new ArrayList<TimeUnit>(EnumSet.allOf(TimeUnit.class));
-			    Collections.reverse(units);
-			    Map<TimeUnit,Long> result = new LinkedHashMap<TimeUnit,Long>();
-			    long milliesRest = diffInMillies;
-			    for ( TimeUnit unit : units ) {
-			        long diff = unit.convert(milliesRest,TimeUnit.MILLISECONDS);
-			        long diffInMilliesForUnit = unit.toMillis(diff);
-			        milliesRest = milliesRest - diffInMilliesForUnit;
-			        result.put(unit,diff);
-			    
-				if(Integer.parseInt(""+result.get(TimeUnit.DAYS))>=0)
-				{
-					EventDao.promoteEventState(conn, eventId, Constants.EVENTBEAN_STATUS_ACTIVE);
-					eventBean.setStatus(Constants.EVENTBEAN_STATUS_ACTIVE);
-				}*/
 				if(today.after(eventDate))
-				// || eventDate.compareTo(today)==0)
 				{
-					EventDao.promoteEventState(conn, (String)sessionMap.get("userCode"), eventId, Constants.EVENTBEAN_STATUS_CLOSED);
+					EventDao.promoteEventState(conn, Integer.parseInt(""+sessionMap.get("userCode")), eventId, Constants.EVENTBEAN_STATUS_CLOSED);
 					eventBean.setStatus(Constants.EVENTBEAN_STATUS_CLOSED);
 				}
 				
@@ -199,15 +182,15 @@ public class EventAction extends ActionSupport implements SessionAware{
 	}
 	public String getListOfEvents()
 	{
-		String ngoUid = getPageOwnerCode();
+		Integer ngoUid = getPageOwnerCode();
 		if(ngoUid==null)
 		{
-			ngoUid = "";
+			ngoUid = 0;
 			setEventListHeading("NGO Events in WelfareCommunity");
 		} else
 			setEventListHeading("NGO Events");
 		try(Connection conn = DBConnection.getConnection()) {
-			boolean isOwner = ngoUid.equals((String)sessionMap.get("userCode"));
+			boolean isOwner = ngoUid.equals(Integer.parseInt("" + sessionMap.get("userCode")));
 			eventBeanList = NgoDao.getListOfEvents(conn, ngoUid, isOwner, eventMonth, eventYear, start*5, 5);
 			setHasNext(!(eventBeanList.size()<5));
 		} catch (SQLException e) {
@@ -243,57 +226,43 @@ public class EventAction extends ActionSupport implements SessionAware{
 		setNewEventFormAction("updateEventChanges");
 		return ResultConstants.SUCCESS;
 	}
-	public String updateEventChanges() throws SQLException
+	public String updateEventChanges() throws IOException, SQLException
 	{
 		Connection conn = DBConnection.getConnection();
-		conn.setAutoCommit(false);
-		eventBean.setOrganizer((String)sessionMap.get("userCode"));
-		eventId = EventDao.updateEventChanges(conn, eventBean);
-	    try {
-	    	String ngoUid = (String)sessionMap.get("userCode");
-	    	/*pageOwnerCode = ngoUid;*/
-	    	String pFExt = ImageUtil.getExtension(imgFileContentType);
-	    	String existingFileURL = PhotoDao.getLogoFileURL(conn, "event",""+eventId);
-	    	File destFile =null;
-	    	if(!existingFileURL.contains("defaults//default"))
-	    	{
-	    		destFile = new File(Constants.ROOTPATH+existingFileURL.substring(1));
-	    		
-	    		ImageUtil.saveOrReplaceImage(imgFile, destFile, "eventDp", Constants.IMAGES_ROOTPATH+ImageUtil.getDestinationPath("event", ngoUid, ""+eventId), pFExt);
-	    	}
-	    	else
-	    		ImageUtil.saveImage(imgFile, "eventDp", 
-	    				Constants.IMAGES_ROOTPATH+ImageUtil.getDestinationPath("event", ngoUid, ""+eventId),
-	    				pFExt);
-	    	EventDao.updateImageURL(conn, eventId,"eventDp", 
-	    			Constants.DB_IMAGES_ROOTPATH+ImageUtil.getDestinationPath("event", ngoUid, ""+eventId),
-	    			pFExt);
-	    }
-	    catch(NullPointerException npe)
-	    {
+		try {
+			conn.setAutoCommit(false);
+			eventBean.setOrganizer(Integer.parseInt(""+sessionMap.get("userCode")));
+			eventId = EventDao.updateEventChanges(conn, eventBean);
+			if(imgFile != null){
+				String existingLogoId = EventDao.getDPPublicId(conn, eventId);
+		    	CloudinaryUtils.deleteImage(existingLogoId, null);
+		    	Map options = new HashMap();
+				options.put("folder", "dev");
+		    	Map<String, String> result = CloudinaryUtils.uploadImage(imgFile, options);
+		    	PhotoBean upPhoto = new PhotoBean(result, "eventDp", eventId);
+				PhotoDao.update(conn, upPhoto, existingLogoId);
+			}
+			conn.commit();
+		    conn.setAutoCommit(true);
+		    
 	    } catch (SQLException e) {
 			e.printStackTrace();
+			conn.rollback();
+		} catch (Exception e){
+			e.printStackTrace();
+			conn.rollback();
 		}
-	    conn.commit();
-	    conn.setAutoCommit(true);
-	    conn.close();
-	    
+		finally {
+			conn.close();
+		}
 		return ResultConstants.SUCCESS;
 	}
 	public String deleteEventAction()
 	{
 		try(Connection conn = DBConnection.getConnection()) {
-			conn.setAutoCommit(false);
-			PreparedStatement stmt = conn.prepareStatement("select evt_code_pk, evt_organizer_code_fk from events_table where evt_code_pk = ?");
-			stmt.setInt(1, eventId);
-			ResultSet rs = stmt.executeQuery();
-			if(rs.next()){
-				String folderPath = Constants.ROOTPATH+"/images/"+rs.getString("evt_organizer_code_fk")+"/events/"+rs.getInt("evt_code_pk")+"/";
-				EventDao.deleteEvent(conn, eventId, folderPath);
-			}
-			conn.setAutoCommit(true);
+			Integer ngoUid = Integer.parseInt(""+sessionMap.get("userCode"));
+			EventDao.deleteEvent(conn, eventId, ngoUid);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		setPageOwnerCode(pageOwnerCode);
@@ -301,7 +270,7 @@ public class EventAction extends ActionSupport implements SessionAware{
 	}
 	public String ajaxCreateNewWork(){
 		try(Connection conn = DBConnection.getConnection()) {
-			EventDao.createNewWork(conn, (String)sessionMap.get("userCode"), eventId, newWork);
+			EventDao.createNewWork(conn, Integer.parseInt(""+sessionMap.get("userCode")), eventId, newWork);
 			setNewWork(newWork);
 			ajaxResponseDummyMsg = "Added Successfully!";
 		} catch (SQLException e) {
@@ -311,7 +280,7 @@ public class EventAction extends ActionSupport implements SessionAware{
 	}
 	public String ajaxPromoteEvent(){
 		try(Connection conn = DBConnection.getConnection()) {
-			EventDao.promoteEventState(conn, (String)sessionMap.get("userCode"), eventId, targetState);
+			EventDao.promoteEventState(conn, Integer.parseInt(""+sessionMap.get("userCode")), eventId, targetState);
 			ajaxResponseDummyMsg = "Event is now "+targetState+"!";
 			
 		} catch (SQLException e) {
@@ -326,10 +295,10 @@ public class EventAction extends ActionSupport implements SessionAware{
 		// TODO Auto-generated method stub
 		this.sessionMap = (SessionMap) sessionMap;
 	}
-	public String getPageOwnerCode() {
+	public Integer getPageOwnerCode() {
 		return pageOwnerCode;
 	}
-	public void setPageOwnerCode(String pageOwnerCode) {
+	public void setPageOwnerCode(Integer pageOwnerCode) {
 		this.pageOwnerCode = pageOwnerCode;
 	}
 	public String getAjaxResponseDummyMsg() {

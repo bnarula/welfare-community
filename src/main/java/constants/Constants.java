@@ -1,10 +1,7 @@
-package util;
+package constants;
 
 public class Constants {
-	public static final String ROOTURL = "http://localhost:8080/WelfareCommunity/";
-	public static final String ROOTPATH = "D:/WelfareCommunity/production/welfare-community/src/main/webapp/";
-	public static final String IMAGES_ROOTPATH = ROOTPATH+"images";
-	public static final String DB_IMAGES_ROOTPATH = "uploads/images";
+	
 	
 	public static final String NGOBEAN_NAME = "ngo_name";
 	public static final String NGOBEAN_DESCRIPTION = "ngo_description";
@@ -47,14 +44,13 @@ public class Constants {
 	public static final String PHOTO_ALBUM_SLIDESHOW = "Slideshow";
 	public static final String PHOTO_ALBUM_EVENTS = "Events";
 	
-	public static final String HTML_FILE_WELCOME_NGO = ROOTPATH+"/emails/Welcome.html";
-	public static final String HTML_FILE_FORGOT_PASSWORD = ROOTPATH+"/emails/ForgotPassword.html";
-	public static final String HTML_FILE_WELCOME_VOLUNTEER = ROOTPATH+"/emails/WelcomeVolunteer.html";
-	public static final String HTML_FILE_APPLICATION_ACCEPT = ROOTPATH+"/emails/ApplicationAccept.html";
-	public static final String HTML_FILE_APPLICATION_REJECT = ROOTPATH+"/emails/ApplicationReject.html";
-	public static final String HTML_FILE_AUTO_MAIL = ROOTPATH+"/emails/Auto.html";
-	public static final String HTML_FILE_PROMO_MAIL = ROOTPATH+"/emails/Promo.html";
-	public static final int FILE_UPLOAD_MAX_SIZE_MB = 1;
-	public static final int LIST_SIZE_PER_PAGE = 10;
-	public static final int SESSION_TIMEOUT_MS = 600000;
+	public static final String HTML_FILE_WELCOME_NGO = ConfigConstants.get("ROOTPATH")+"/emails/Welcome.html";
+	public static final String HTML_FILE_FORGOT_PASSWORD = ConfigConstants.get("ROOTPATH")+"/emails/ForgotPassword.html";
+	public static final String HTML_FILE_WELCOME_VOLUNTEER = ConfigConstants.get("ROOTPATH")+"/emails/WelcomeVolunteer.html";
+	public static final String HTML_FILE_APPLICATION_ACCEPT = ConfigConstants.get("ROOTPATH")+"/emails/ApplicationAccept.html";
+	public static final String HTML_FILE_APPLICATION_REJECT = ConfigConstants.get("ROOTPATH")+"/emails/ApplicationReject.html";
+	public static final String HTML_FILE_AUTO_MAIL = ConfigConstants.get("ROOTPATH")+"/emails/Auto.html";
+	public static final String HTML_FILE_PROMO_MAIL = ConfigConstants.get("ROOTPATH")+"/emails/Promo.html";
+	
+	public static final String DEFAULT_NGO_LOGO_PUBLIC_ID = "default_ngo_thumb";
 }
