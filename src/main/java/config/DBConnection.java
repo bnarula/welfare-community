@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 
+import constants.ConfigConstants;
+
 /**
  *
  * @author Bhavya
@@ -20,9 +22,9 @@ public class DBConnection {
 		PoolProperties p = new PoolProperties();
 		
 		
-        p.setUrl("jdbc:mysql://localhost:3306/welfarecommunity");
-        p.setUsername("root");
-        p.setPassword("root");
+        p.setUrl(ConfigConstants.get("mysql_url"));
+        p.setUsername(ConfigConstants.get("mysql_username"));
+        p.setPassword(ConfigConstants.get("mysql_password"));
 		p.setDriverClassName("com.mysql.jdbc.Driver");
         
         p.setJmxEnabled(true);

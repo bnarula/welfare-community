@@ -27,7 +27,7 @@ public class ConfigConstants {
 			if(env.equals(devEnv)){
 				propertiesFile = "dev-config.properties";
 			} else {
-				propertiesFile = "";
+				propertiesFile = "prod-config.properties";
 			}
 			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 			InputStream  input = classLoader.getResourceAsStream(propertiesFile);
@@ -41,6 +41,7 @@ public class ConfigConstants {
 		}  
 	}
 	public static String get(String key){
+		key = key.toLowerCase();
 		return prop.getProperty(key);
 	}
 }
