@@ -10,21 +10,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<!-- css -->
-	<link rel="stylesheet" href="./css/bootstrap.css" />
 	<link rel="stylesheet" href="./css/animate.css">
 	<link rel="stylesheet" href="./css/style.css">
 	<link href="./css/jssor.css" rel="stylesheet" type="text/css" />
 	<link href="./css/font-awesome.min.css" rel="stylesheet" />
 	<link href="./css/Main.css" rel="stylesheet" type="text/css" />
 	
-	
-	
 	<link rel='shortcut icon' type='image/x-icon' href='/favicon.ico' />
 	<link href="./css/bootstrap-tour.min.css" rel="stylesheet">
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-	<script src="./js/loader.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-
+	
+	
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	
 	<!-- fonts -->
 	<link href='https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic|Roboto+Condensed:300italic,400italic,700italic,400,300,700|Oxygen:400,300,700' rel='stylesheet'>
 
@@ -61,23 +59,13 @@
 	}
     </style>
     <div id="fb-root"></div>
-	<script>(function(d, s, id) {
-	  var js, fjs = d.getElementsByTagName(s)[0];
-	  if (d.getElementById(id)) return;
-	  js = d.createElement(s); js.id = id;
-	  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.7";
-	  fjs.parentNode.insertBefore(js, fjs);
-	}(document, 'script', 'facebook-jssdk'));</script>
+	
 </head>
 <body id="home">
 
 	<!-- ****************************** Preloader ************************** -->
 
 	<div id="preloader"></div>
-
-	<!-- ****************************** Sidebar ************************** -->
-
-
 
 	<!-- ****************************** Header ************************** -->
 
@@ -103,14 +91,6 @@
 							      </div>
 							   </div>
 						  
-						    <script>
-							    $('#bsQuery1').on("keypress", function(e) {
-								        if (e.keyCode == 13) {
-								        	basicSearch1('sbn');
-								            return false; // prevent the button click from happening
-								        }
-								});
-						    </script>
 					  		</div>
 					  		<input type="hidden" name="searchAction" id="searchAction1" value="blank"/>
 					      	<input type="hidden" name="start" value="0"/>
@@ -146,17 +126,15 @@
 							</div>
 						</div>
 						<div class="row" style="margin-top: 20px;">
-							<script src='./js/alert.js'></script>
+						<script>
+							var errorMessage = false,successMessage = false;; 
+						</script>
 						<s:if test="hasActionErrors()">
 			                <s:actionerror/>
 				                <div id="alert-error-login">
 				                </div>
 			                    <script>
-				                	var options = {type : 'danger',
-				                					heading : 'Error!',
-				                					content :  document.getElementsByClassName("errorMessage")[0].childNodes[1].childNodes[0].innerHTML,
-				                				  };
-				                	$('#alert-error-login').bAlert(options);
+			                    	errorMessage = true;
 			                    </script>
 			                 
 			                </s:if>
@@ -165,11 +143,7 @@
 				                <div id="alert-success-login">
 				                </div>
 			                    <script>
-				                	var options = {type : 'success',
-				                					heading : 'Success!',
-				                					content :  document.getElementsByClassName("actionMessage")[0].childNodes[1].childNodes[0].innerHTML,
-				                				  };
-				                	$('#alert-success-login').bAlert(options);
+			                    	successMessage = true;
 			                    </script>
 		                 
 		                </s:if>
@@ -260,14 +234,6 @@
 								      </div>
 								   </div>
 							  
-							    <script>
-								    $('#bsQuery2').on("keypress", function(e) {
-									        if (e.keyCode == 13) {
-									        	basicSearch2('sbn');
-									            return false; // prevent the button click from happening
-									        }
-									});
-							    </script>
 						  		</div>
 						  		<input type="hidden" name="searchAction" id="searchAction2" value="blank"/>
 						      	<input type="hidden" name="start" value="0"/>
@@ -396,59 +362,100 @@
 
 
 	<!-- All the scripts -->
-
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 	<script src="./js/wow.min.js"></script>
 	<script src="./js/script.js"></script>
 	<script type="text/javascript" src="./js/jssor.slider.min.js"></script>
  	<script src="./js/index.js"></script>
- 	<script src="./js/slick.min.js"></script>
  	<script src="./js/validator.js"></script>
-    <!-- use jssor.slider.debug.js instead for debug -->
+ 	<script src='./js/alert.js'></script>
     <script>
-    
-       
-   	$(window).load(function() {
-   		window.mobileScreen = screen.width<480;
-       	var cslides = $('#causes-slides');
-       	var causes = [];
-       	$.ajax({
-               url : 'indexGetCausesList',
-               data : '',
-               type : 'POST',
-               processData: false,
-               contentType: false,
-               success : function(jsonResponse) {
-               	causes = jsonResponse.causesList;
-               	causes.forEach(function(item){
-               		var div = jQuery('<div/>').appendTo(cslides);
-               		div.css({'display': 'none', 'text-align': 'center'});
-               		var a = jQuery('<a />').appendTo(div);
-               		a.attr("href", "advanceSearch.action?sCauseList="+item.causeName+"&searchAction=sbc2&sState=All&sCity=All&profileType=auto&start=0");
-               		var causeIconSize = screen.width<480?' fa-2x':' fa-4x';
-               		
-               		var i = jQuery('<i/>', {
-               			'class':item.causeIcon+causeIconSize,
-               			'style':'color:white; text-shadow: gray 2px 2px'
-               		}).appendTo(a);
-               		
-               		jQuery('<br/>').appendTo(a);
-               		
-               		var p = jQuery('<p/>', {
-               			'text':item.causeName,
-               			'style':'color:white; font-size:18px; text-shadow: gray 2px 2px'
-               		}).appendTo(a);
-               		
-               	});
-               	jssor_C_slider_init();
-  				}
-           });
-	       	if (navigator.geolocation) {
-	    		navigator.geolocation.getCurrentPosition(showPosition);
-	    	} else {
-	    		x.innerHTML = "Geolocation is not supported by this browser.";
-	    	}
+    $(window).on('load', function(){
+    	var img = new Image();
+    	img.onload = function(){
+    		$('#banner').css('backgroundImage', 'url(./images/index-banner.jpg)');
+    	}
+    	img.src = "./images/index-banner.jpg";
+    	img = new Image();
+    	img.onload = function(){
+    		$('#gallery-causes').css('backgroundImage', 'url(./images/causes-banner.jpg)');
+    	}
+    	img.src = "./images/causes-banner.jpg";
+    });
+       $(window).on('load', function(){
+    	   window.mobileScreen = screen.width<480;
+         	var cslides = $('#causes-slides');
+         	var causes = [];
+         	$.ajax({
+                 url : 'indexGetCausesList',
+                 data : '',
+                 type : 'POST',
+                 processData: false,
+                 contentType: false,
+                 success : function(jsonResponse) {
+                 	causes = jsonResponse.causesList;
+                 	causes.forEach(function(item){
+                 		var div = jQuery('<div/>').appendTo(cslides);
+                 		div.css({'display': 'none', 'text-align': 'center'});
+                 		var a = jQuery('<a />').appendTo(div);
+                 		a.attr("href", "advanceSearch.action?sCauseList="+item.causeName+"&searchAction=sbc2&sState=All&sCity=All&profileType=auto&start=0");
+                 		var causeIconSize = screen.width<480?' fa-2x':' fa-4x';
+                 		
+                 		var i = jQuery('<i/>', {
+                 			'class':item.causeIcon+causeIconSize,
+                 			'style':'color:white; text-shadow: gray 2px 2px'
+                 		}).appendTo(a);
+                 		
+                 		jQuery('<br/>').appendTo(a);
+                 		
+                 		var p = jQuery('<p/>', {
+                 			'text':item.causeName,
+                 			'style':'color:white; font-size:18px; text-shadow: gray 2px 2px'
+                 		}).appendTo(a);
+                 		
+                 	});
+                 	jssor_C_slider_init();
+    				}
+             });
+          	if (navigator.geolocation) {
+       		navigator.geolocation.getCurrentPosition(showPosition);
+       	} else {
+       		x.innerHTML = "Geolocation is not supported by this browser.";
+       	}
        });
-   	
+  		
+    $('#bsQuery1').on("keypress", function(e) {
+	        if (e.keyCode == 13) {
+	        	basicSearch1('sbn');
+	            return false; // prevent the button click from happening
+	        }
+	});
+    
+    $('#bsQuery2').on("keypress", function(e) {
+        if (e.keyCode == 13) {
+        	basicSearch2('sbn');
+            return false; // prevent the button click from happening
+        }
+	});
+    
+    if(errorMessage){
+    	 var options = {type : 'danger',
+    				heading : 'Error!',
+    				content :  document.getElementsByClassName("errorMessage")[0].childNodes[1].childNodes[0].innerHTML,
+    			  };
+    		$('#alert-error-login').bAlert(options);
+    }
+   
+	if(successMessage){
+		var options = {type : 'success',
+				heading : 'Success!',
+				content :  document.getElementsByClassName("actionMessage")[0].childNodes[1].childNodes[0].innerHTML,
+			  };
+		$('#alert-success-login').bAlert(options);
+	}
+	
+	
    	function openVerifyDiv(){
  		$('#verifyDiv').modal('show');
  	}
@@ -612,6 +619,14 @@
 	    </div><!-- /.modal-content -->
 	  </div><!-- /.modal-dialog -->
 	</div><!-- /.modal -->
+	<script>(function(d, s, id) {
+	  var js, fjs = d.getElementsByTagName(s)[0];
+	  if (d.getElementById(id)) return;
+	  js = d.createElement(s); js.id = id;
+	  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.7";
+	  fjs.parentNode.insertBefore(js, fjs);
+	}(document, 'script', 'facebook-jssdk'));</script>
+	<script src="./js/loader.js"></script>
 	<%@ include file="footer.jsp" %>
 </body>
 </html>

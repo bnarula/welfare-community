@@ -10,10 +10,7 @@
 	<link href="./css/Main.css" rel="stylesheet" type="text/css" />
 	<link rel='shortcut icon' type='image/x-icon' href='/favicon.ico' />
 	<link href="./css/bootstrap-tour.min.css" rel="stylesheet">
-	<script
-		  src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-		  integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g="
-		  crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 	<script src="./js/loader.js"></script>
 	<div id="fb-root"></div>
 	<script>
