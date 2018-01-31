@@ -35,7 +35,7 @@ public class LoginAction extends ActionSupport implements SessionAware{
 		try(Connection con = DBConnection.getConnection()) {
 			response = UserDao.validateByEmail(con, loginUserBean.getEmail(), loginUserBean.getPassword());
 		 
-			if(response.equalsIgnoreCase("false"))
+			if(response.equalsIgnoreCase("invalid"))
 			{
 				addActionError("Password is not valid");
 			}
