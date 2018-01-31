@@ -318,7 +318,7 @@ a:hover {
 /////////////////////////////////////////////////////////////////////*/
 
 #banner {
-    background: url(../images/index-banner.jpg);
+    background: url(../images/index-banner_min.jpg);
     background-size: cover;
     padding-top: 80px;
     background-attachment: fixed;
@@ -397,7 +397,7 @@ a:hover {
 
 
 #gallery-causes{
-    background: url(../images/causes-banner.jpg) no-repeat;
+    background: url(../images/causes-banner_min.jpg) no-repeat;
     background-size: cover;
     background-attachment: fixed;
     background-position : center;
