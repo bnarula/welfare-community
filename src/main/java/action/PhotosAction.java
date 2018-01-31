@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -159,7 +160,7 @@ public class PhotosAction extends ActionSupport implements SessionAware {
 			arr = PhotoDao.getPublicIds(con, arr);
 			PhotoDao.deletePhotos(con, arr);
 			try {
-				CloudinaryUtils.deleteImages(arr, null);
+				CloudinaryUtils.deleteImages(Arrays.asList(arr), null);
 			} catch (Exception e) {
 				ajaxResponseDummyMsg = "Deletion Failed";
 				con.rollback();

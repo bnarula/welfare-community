@@ -213,6 +213,17 @@ public class EventDao {
 		}
 		return logoId;
 	}
+	public static ArrayList<String> getPublicIdForPhotos(Connection conn, Integer eventId) throws SQLException{
+		ArrayList<String> photoPubIds = new ArrayList<String>();
+		PreparedStatement stmt = conn.prepareStatement("select id, public_id, owner_id, category from photo_table where owner_id=? and "
+				+ "(category = 'eventDp' or category = 'event')");
+		stmt.setInt(1, eventId);
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()){
+			photoPubIds.add(rs.getString("public_id"));
+		}
+		return photoPubIds;
+	}
 	public static void deleteEvent(Connection conn, int eventId, int organizer) throws SQLException {
 		
 		PreparedStatement stmt = conn.prepareStatement("delete from photo_table where owner_id=? and (category='event' or category='eventDp') ");
@@ -224,8 +235,6 @@ public class EventDao {
 		stmt.setInt(2, organizer);
 		stmt.execute();
 		stmt.close();
-		conn.commit();
-		//TODO delete event images from db and cloud;
 	}
 
 	public static List<EventBean> searchByLocation(Connection conn, String currentCity, int start, int count) throws SQLException {

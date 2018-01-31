@@ -93,7 +93,8 @@ public class AboutUsAction implements SessionAware {
 			Integer userCode = Integer.parseInt(""+sessionMap.get("userCode"));
 			if(AboutUsDao.deleteThisAboutUs(conn, toBeDeletedCode, userCode))
 			{
-				PhotoDao.deleteAboutUsPhoto(conn, toBeDeletedCode);
+				List<String> list = PhotoDao.deleteAllPhotos(conn, PhotoBean.PHOTOBEAN_TYPE_POST, toBeDeletedCode);
+				CloudinaryUtils.deleteImages(list, null);
 				//TODO delete photo from cloud
 				ajaxResponseDummyMsg = "Successfully Deleted!";
 				return ResultConstants.SUCCESS;
@@ -101,6 +102,9 @@ public class AboutUsAction implements SessionAware {
 			else 
 				return ResultConstants.FAILURE;
 		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

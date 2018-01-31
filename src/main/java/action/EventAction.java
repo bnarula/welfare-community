@@ -261,8 +261,13 @@ public class EventAction extends ActionSupport implements SessionAware{
 	{
 		try(Connection conn = DBConnection.getConnection()) {
 			Integer ngoUid = Integer.parseInt(""+sessionMap.get("userCode"));
+			ArrayList<String> eventPhotos = EventDao.getPublicIdForPhotos(conn, eventId);
+			CloudinaryUtils.deleteImages(eventPhotos, null);
 			EventDao.deleteEvent(conn, eventId, ngoUid);
 		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		setPageOwnerCode(pageOwnerCode);
