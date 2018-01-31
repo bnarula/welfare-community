@@ -159,7 +159,7 @@
 						<a href="<s:url action='getPhotos'>
 			             	 <s:param name="from">ngo</s:param>
 			             	 <s:param name="pageOwnerCode"><s:property value="pageOwnerCode"/></s:param>
-			              </s:url>" > Add Slideshow
+			              </s:url>" > Add Cover Photos
 			            </a>
 		            	<script>$('#addSlideshowToolip').tooltip({
 		            		trigger:'focus',

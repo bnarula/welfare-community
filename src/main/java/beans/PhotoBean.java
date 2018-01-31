@@ -17,6 +17,12 @@ public class PhotoBean {
 	private String category;
 	private Integer ownerId;
 	private boolean cover;
+	public static final String PHOTOBEAN_TYPE_POST = "AU";
+	public static final String PHOTOBEAN_TYPE_EVENT = "event";
+	public static final String PHOTOBEAN_TYPE_EVENT_DP = "eventDp";
+	public static final String PHOTOBEAN_TYPE_NGO_LOGO = "ngoLogo";
+	public static final String PHOTOBEAN_TYPE_NGO = "ngoOthers";
+	//public static final String PHOTOBEAN_TYPE_EVENT_DP = "eventDp";
 	public PhotoBean(){
 		
 	}

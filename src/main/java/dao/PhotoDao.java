@@ -151,11 +151,23 @@ public class PhotoDao {
 		stmt.close();
 		return photosIdArray;
 	}
-	public static void deleteAboutUsPhoto(Connection con, Integer toBeDeletedCode) throws SQLException{
-		PreparedStatement stmt =  con.prepareStatement("delete from photo_table where owner_id=? and category='AU'");
-		stmt.setInt(1, toBeDeletedCode);
+	public static List<String> deleteAllPhotos(Connection con, String type, int ownerId) throws SQLException{
+		List<String> result = new ArrayList<String>();
+		PreparedStatement stmt =  con.prepareStatement("select public_id, owner_id"
+				+ ", category from photo_table where owner_id=? and category=?");
+		stmt.setInt(1, ownerId);
+		stmt.setString(1, type);
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()){
+			result.add(rs.getString("public_id"));
+		}
+		stmt.close();
+		stmt =  con.prepareStatement("delete from photo_table where owner_id=? and category=?");
+		stmt.setInt(1, ownerId);
+		stmt.setString(1, type);
 		stmt.execute();
 		stmt.close();
+		return result;
 	}
 	public static void addToCover(Connection conn, String[] imgsArr, String ownerId) throws SQLException{
 		StringBuffer statement = new StringBuffer("");

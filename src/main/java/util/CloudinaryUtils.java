@@ -3,6 +3,7 @@ package util;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import com.cloudinary.Api;
@@ -29,18 +30,18 @@ public class CloudinaryUtils {
 		Map uploadResult = cloudinary.uploader().upload(file, options);
 		return uploadResult;
 	}
-	public static void deleteImages(String[] public_ids, Map options) throws Exception{
+	public static void deleteImages(List<String> public_ids, Map options) throws Exception{
 		if (options == null){
 			options = ObjectUtils.emptyMap();
 		}
 		final Map lOptions  = options;
-		final String[] lPublicIds = public_ids;
+		final List<String> lPublicIds = public_ids;
 		System.out.println("started to delete");
 		Thread t1 = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					api.deleteResources(Arrays.asList(lPublicIds), lOptions);
+					api.deleteResources(lPublicIds, lOptions);
 					System.out.println("deletion complete");
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -49,7 +50,6 @@ public class CloudinaryUtils {
 		});
 		t1.start();
 		System.out.println(api);
-		api = null;
 		System.out.println("deletion submitted");
 		
 		//return result;
