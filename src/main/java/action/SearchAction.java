@@ -41,9 +41,6 @@ public class SearchAction extends ActionSupport{
 	
 	private String sName;
 	private String sCauseList;
-	private String sState;
-	private String sCity;
-	
 
 	public String ajaxStateChangeSearchAction() {
 		cityList.clear();
@@ -68,16 +65,16 @@ public class SearchAction extends ActionSupport{
 			stateList.put("All","All");
 			stateList.putAll(AddressMasterDao.getListOfStates(conn));
 			cityList.put("All","All");
-			if(!"All".equals(sState))
-				cityList.putAll(AddressMasterDao.getListOfCities(conn, sState));
+			if(!"All".equals(selectedState))
+				cityList.putAll(AddressMasterDao.getListOfCities(conn, selectedState));
 			setSearchAction(searchAction);
 			
 			if(sCauseList==null)
 				sCauseList="";
-			if(sState==null)
-				sState="All";
-			if(sCity==null)
-				sCity="All";
+			if(selectedState==null)
+				selectedState="All";
+			if(selectedCity==null)
+				selectedCity="All";
 			if(profileType==null)
 				profileType="auto";
 			
@@ -87,7 +84,7 @@ public class SearchAction extends ActionSupport{
 			List<Integer> resultList = new ArrayList<Integer>();
 			if(!searchAction.equals("sbc1") && !searchAction.equals("sbn")){
 				asQuery = "sCauseList="+sCauseList+"&searchAction="
-						+searchAction+"&sState="+sState+"&sCity="+sCity+"&profileType="+profileType+"&start=";
+						+searchAction+"&selectedState="+selectedState+"&selectedCity="+selectedCity+"&profileType="+profileType+"&start=";
 			} else {
 				setBsQuery(bsQuery);
 				asQuery = "searchAction="+searchAction+"&bsQuery="+bsQuery+"&start=";
@@ -102,23 +99,23 @@ public class SearchAction extends ActionSupport{
 					resultList = NgoDao.searchByName(conn, bsQuery, profileType.equalsIgnoreCase("user"), start*5, 5);
 			}
 			if(searchAction.equals("sbc1")){
-				resultList = NgoDao.searchByCause(conn, bsQuery, profileType, start*5, 5);
+				resultList = NgoDao.searchByCause(conn, true, bsQuery, profileType, start*5, 5);
 			}
 			if(searchAction.equals("sbc2")){
-				resultList = NgoDao.searchByCause(conn, sCauseList, profileType, start*5, 5);
+				resultList = NgoDao.searchByCause(conn, false, sCauseList, profileType, start*5, 5);
 			}
 			if(searchAction.equals("sbcl")){
-				if(!sState.equals("All") && (sCity.equals("All") || sCity.equals("")))
-					resultList = NgoDao.searchByCauseAndLocation(conn, sCauseList, sState, "state", profileType, start*5, 5); 
-				if(!sState.equals("All") && !sCity.equals("All") && !sCity.equals(""))
-					resultList = NgoDao.searchByCauseAndLocation(conn, sCauseList, sCity, "city", profileType, start*5, 5); 
+				if(!selectedState.equals("All") && (selectedCity.equals("All") || selectedCity.equals("")))
+					resultList = NgoDao.searchByCauseAndLocation(conn, sCauseList, selectedState, "state", profileType, start*5, 5); 
+				if(!selectedState.equals("All") && !selectedCity.equals("All") && !selectedCity.equals(""))
+					resultList = NgoDao.searchByCauseAndLocation(conn, sCauseList, selectedCity, "city", profileType, start*5, 5); 
 			}
 			if(searchAction.equals("sbl")){
-				if(!sState.equals("All")  && (sCity.equals("All") || sCity.equals("")))
-					resultList = NgoDao.searchByLocation(conn, "state", sState, profileType, start*5, 5); 
+				if(!selectedState.equals("All")  && (selectedCity.equals("All") || selectedCity.equals("")))
+					resultList = NgoDao.searchByLocation(conn, "state", selectedState, profileType, start*5, 5); 
 				
-				if(!sState.equals("All")  && !sCity.equals("All") && !sCity.equals(""))
-					resultList = NgoDao.searchByLocation(conn, "city", sCity, profileType, start*5, 5);
+				if(!selectedState.equals("All")  && !selectedCity.equals("All") && !selectedCity.equals(""))
+					resultList = NgoDao.searchByLocation(conn, "city", selectedCity, profileType, start*5, 5);
 			}
 			
 			System.out.println("search query end at"+new Date(System.currentTimeMillis()));
@@ -238,23 +235,11 @@ public class SearchAction extends ActionSupport{
 	public void setSName(String sName) {
 		this.sName = sName;
 	}
-	public String getSCauseList() {
+	public String getsCauseList() {
 		return sCauseList;
 	}
-	public void setSCauseList(String sCauseList) {
+	public void setsCauseList(String sCauseList) {
 		this.sCauseList = sCauseList;
-	}
-	public String getSState() {
-		return sState;
-	}
-	public void setSState(String sState) {
-		this.sState = sState;
-	}
-	public String getSCity() {
-		return sCity;
-	}
-	public void setSCity(String sCity) {
-		this.sCity = sCity;
 	}
 	public String getSearchAction() {
 		return searchAction;

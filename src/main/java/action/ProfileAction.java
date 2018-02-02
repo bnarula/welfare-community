@@ -86,7 +86,16 @@ public class ProfileAction extends ActionSupport implements SessionAware{
 	{
 		try(Connection conn = DBConnection.getConnection()) {
 			Integer ngoUid = null;
-			Integer userCode = Integer.parseInt(""+sessionMap.get("userCode"));
+			Integer userCode = null;
+			if(sessionMap.containsKey("userCode")){
+				userCode = Integer.parseInt(""+sessionMap.get("userCode"));
+				if(!sessionMap.containsKey("firstVisit") || (boolean)sessionMap.get("firstVisit")){
+					sessionMap.put("firstVisit", false);
+					setFirstVisit(true);
+				} else {
+					setFirstVisit(false);
+				}
+			} 
 			if(""!=id && null!=id)
 			{
 				ngoUid = NgoDao.getNgoUidFromAlias(conn, id);
@@ -96,40 +105,29 @@ public class ProfileAction extends ActionSupport implements SessionAware{
 				NgoBean sessionBean = NgoDao.getSessionNgoBeanFromId(conn, ngoUid);
     			sessionMap.put("pageOwnerBean", sessionBean);
     			sessionMap.put("isUserModified", false);
-				if(ngoUid.equals(Integer.parseInt("" + sessionMap.get("userCode")))){
+				if(ngoUid.equals(userCode)){
 					sessionMap.put("guest", false);
 					sessionMap.put("owner", true);
 					sessionMap.put("visitor", false);
 				}
-				sessionMap.put("isUserAppreciated", NgoDao.isAppreciated(conn, userCode, pageOwnerCode));
-				
+				pageOwnerCode = ngoUid;
 			}
 			else
 				ngoUid = pageOwnerCode;
+			if(sessionMap.containsKey("userCode"))
+				sessionMap.put("isUserAppreciated", NgoDao.isAppreciated(conn, userCode, pageOwnerCode));
 			ArrayList<String> selectables = new ArrayList<String>();
 			selectables.add("all");
 			NgoBean ngoBean = new NgoBean();
-			
 			ngoBean.setListOfCoverPhotos(PhotoDao.getListOfCoverPhotos(conn, ngoUid, 0, 10));
-			boolean isOwner = ngoUid.equals(Integer.parseInt("" + sessionMap.get("userCode")));
+			boolean isOwner = ngoUid.equals(userCode);
 			List<EventBean> eventList = NgoDao.getListOfEvents(conn, ngoUid, isOwner, -1, -1, 0, 5);
 			ngoBean.setNgoEventBeanList(eventList);
 			setPageOwnerBean(ngoBean);
-			//NgoBean sessionNgoBean = NgoDao.getNgoBeanFromId(conn, ngoUid, selectables);
-			//sessionMap.put("pageOwnerBean", ngoBean);
 			setNoOfEvents(1);
 			setNoOfPhotos(NgoDao.getCountOfCoverPhotos(conn, ngoUid));
 			photoList = PhotoDao.getListOfPhotos(conn, ngoUid, "ngo", 0, 20, true);
-			if(!sessionMap.containsKey("firstVisit") || (boolean)sessionMap.get("firstVisit")){
-				sessionMap.put("firstVisit", false);
-				setFirstVisit(true);
-			} else {
-				setFirstVisit(false);
-			}
-			
 			setTourName("TOUR_PROFILE");
-			
-			
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 			return ResultConstants.PAGE_NOT_FOUND;

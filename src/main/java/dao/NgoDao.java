@@ -378,20 +378,20 @@ public class NgoDao {
 		return resultList;
 	}
 
-	public static List<Integer> searchByCause(Connection con, String searchQuery, String ngoType, int start, int count)  throws SQLException{
+	public static List<Integer> searchByCause(Connection con, boolean searchByName, String searchQuery, String ngoType, int start, int count)  throws SQLException{
 		List<Integer> resultList = new ArrayList<Integer>();
-		if(searchQuery.indexOf(",")!=-1){
-			searchQuery = searchQuery.replace(",", "','");
-			searchQuery = "in ('"+searchQuery+"')";
+		if(!searchByName){
+			//searchQuery = searchQuery.replace(",", "','");
+			searchQuery = " cmt.cause_code_pk in ("+searchQuery+")";
 		}
 		else
-			searchQuery = "like '%"+ searchQuery + "%'";
+			searchQuery = " cmt.cause_name like '%"+ searchQuery + "%'";
 		Statement stmt = con.createStatement();
 		ResultSet rs = stmt.executeQuery(
-				"select cmt.cause_code_pk, cmt.cause_name, nct.nct_ngo_uid_fk, nct.nct_cause_code_fk"
+				"select cmt.cause_code_pk, nct.nct_ngo_uid_fk, nct.nct_cause_code_fk"
 						+ " from causes_master_table cmt "
 						+ "join ngo_causes_table nct on nct.nct_cause_code_fk=cmt.cause_code_pk "
-						+ "where cmt.cause_name "+ searchQuery + " and nct.nct_ngo_type = '"+ngoType+"' order by nct.nct_ngo_uid_fk limit "+start+","+count);
+						+ "where "+ searchQuery + " and nct.nct_ngo_type = '"+ngoType+"' order by nct.nct_ngo_uid_fk limit "+start+","+count);
 		while (rs.next())
 			resultList.add(rs.getInt("nct.nct_ngo_uid_fk"));
 		rs.close();
@@ -403,8 +403,8 @@ public class NgoDao {
 		List<Integer> resultList = new ArrayList<Integer>();
 		String locationWhere = "";
 		if(causeQuery.indexOf(",")!=-1){
-			causeQuery = causeQuery.replace(",", "','");
-			causeQuery = "in ('"+causeQuery+"')";
+			//causeQuery = causeQuery.replace(",", "','");
+			causeQuery = "in ("+causeQuery+")";
 		}
 		else
 			causeQuery = "like '%"+ causeQuery + "%'";
@@ -415,11 +415,11 @@ public class NgoDao {
 		
 		Statement stmt = con.createStatement();
 		ResultSet rs = stmt.executeQuery(
-				"select cmt.cause_code_pk, cmt.cause_name, nct.nct_ngo_uid_fk"
+				"select cmt.cause_code_pk, nct.nct_ngo_uid_fk"
 						+ " from causes_master_table cmt join ngo_causes_table nct on nct.nct_cause_code_fk=cmt.cause_code_pk "
 						+ "join ngo_address_table nat on nat.add_ngo_code_fk = nct.nct_ngo_uid_fk "
 						+ "join address_master_table amt on amt.add_code_pk = nat.add_master_code_fk where "+locationWhere
-						+ " and cmt.cause_name "+ causeQuery + " and nct.nct_ngo_type = '"+ngoType+"' order by nct.nct_ngo_uid_fk limit "+start+",5");
+						+ " and cmt.cause_code_pk "+ causeQuery + " and nct.nct_ngo_type = '"+ngoType+"' order by nct.nct_ngo_uid_fk limit "+start+",5");
 						//						+ " and cmt.cause_name "+ causeQuery + /*" and nct.nct_ngo_type = '"+ngoType+"' */" order by nct.nct_ngo_uid_fk, nct.nct_ngo_type desc limit "+start+",5");
 	
 		while (rs.next())
