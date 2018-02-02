@@ -17,6 +17,8 @@ public class ConfigConstants {
 	public int FILE_UPLOAD_MAX_SIZE_MB, LIST_SIZE_PER_PAGE, SESSION_TIMEOUT_MS;
 	
 	static {
+		System.out.println("********** ConfigConstants start");
+		
 		if(System.getenv("env") != null && System.getenv("env") != ""){
 			env = System.getenv("env");
 		} else {
@@ -29,14 +31,21 @@ public class ConfigConstants {
 			} else {
 				propertiesFile = "prod-config.properties";
 			}
+			System.out.println("********** " +propertiesFile);
 			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 			InputStream  input = classLoader.getResourceAsStream(propertiesFile);
 			prop.load(input);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
+			System.out.println("FileNotFoundException");
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			System.out.println("IOException");
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			System.out.println("Exception");
 			e.printStackTrace();
 		}  
 	}
