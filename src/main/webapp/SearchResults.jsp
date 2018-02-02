@@ -53,16 +53,12 @@ $(document).ready(function() {
 					loader.stop();
 				});
 		});
-	$('#sCauseList').on('changed.bs.select', function (e) {
-		$('#inpCauseList')[0].value = $('#selectedList')[0].innerHTML;
-	});
 	
 	$('#sCauseList').on('loaded.bs.select', function (e) {
 		<%String strCauses = request.getParameter("sCauseList");
-			if(strCauses!=null && !strCauses.equals(""))
-				strCauses = strCauses.replace(", ", "','");
+			
 		%>
-		$('#sCauseList').selectpicker('val',['<%=strCauses%>']);
+		$('#sCauseList').selectpicker('val',[<%=strCauses%>]);
 	});
 });
 function performAdvanceSearch(){
@@ -72,12 +68,13 @@ function performAdvanceSearch(){
 	causesSelected = $('#sCauseList').val();
 	citySelected = $('#city').val();
 	stateSelected  = $('#state').val();
-	if(causesSelected && (stateSelected!='All' || citySelected!='All'))
+	if(causesSelected.length && (stateSelected!='All' || citySelected!='All'))
 		searchAction = "sbcl";
-	if(causesSelected && (!(stateSelected!='All') && !(citySelected!='All')))
+	if(causesSelected.length && (!(stateSelected!='All') && !(citySelected!='All')))
 		searchAction = "sbc2";
-	if(!causesSelected && (stateSelected!='All' || citySelected!='All'))
+	if(!causesSelected.length && (stateSelected!='All' || citySelected!='All'))
 		searchAction = "sbl";
+	$('#inpCauseList').attr("value", causesSelected.toString());
 	if(searchAction==='as' || searchAction==='')
 	{
 		alert("No parameters to search! Please select any filter to perform appropriate search.")
@@ -105,19 +102,19 @@ function performAdvanceSearch(){
 						<select class="selectpicker" id="sCauseList" data-live-search="true" multiple title="All"
 						data-icon-base="fa" data-tick-icon="fa-check-circle-o" data-width='222' data-show-content="true">
 						  <s:iterator value="selectCauseList" var="i">
-						  	<option value="<s:property value='#i.value' />"><s:property value="#i.value" /></option>
+						  	<option value="<s:property value='#i.key' />"><s:property value="#i.value" /></option>
 						  </s:iterator>
 						</select>
 					</div>
 					<div class="col-md-3">
 						State:<br>
-						<s:select list="stateList" id="state" name="sState" cssClass="selectpicker" title="All"
-						value="%{sState}"></s:select>
+						<s:select list="stateList" id="state" name="selectedState" cssClass="selectpicker" title="All"
+						value="%{selectedState}"></s:select>
 					</div>
 					<div class="col-md-3">
 						City:<br>
-						<s:select list="cityList"  id="city" name="sCity" cssClass="selectpicker" title="All"
-						value="%{sCity}"></s:select>
+						<s:select list="cityList"  id="city" name="selectedCity" cssClass="selectpicker" title="All"
+						value="%{selectedCity}"></s:select>
 					</div>
 					<div class="col-md-2">
 						Auto generated<br> or User Profiles:
