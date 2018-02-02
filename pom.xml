@@ -215,14 +215,11 @@
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                     <outputDirectory>target</outputDirectory>
               		  <warName>ROOT</warName>
+					<source>1.7</source>
+					<target>1.7</target>
                 </configuration>
             </plugin>
         </plugins>
-        <resources>
-        <resource>
-            <directory>src/resources/</directory>
-        </resource>
-    </resources>
       </build>
     </profile>
 	</profiles>
