@@ -278,7 +278,7 @@ public class NgoDao {
 		selectString = selectString.substring(1, selectString.length()-1);
 		Statement stmt = con.createStatement();
 		ResultSet rs = stmt.executeQuery("select "+selectString+" from ngos_table T1 "+joinQuery+" where ngo_uid in ("
-				+ codeString.substring(0, codeString.length() - 2) + ") ");
+				+ codeString.substring(0, codeString.length() - 2) + ") order by ngo_type desc");
 		NgoBean ngoBean = new NgoBean();
 		ngoBean.setUid(-1);
 		HashSet<String> hsNgo = new HashSet<String>();
@@ -348,12 +348,11 @@ public class NgoDao {
 		}
 		return ngoBeans;
 	}
-
-	public static List<Integer> listAllUserNgos(Connection con, int start, int count)  throws SQLException{
+	public static List<Integer> listAllNgos(Connection con, String type, int start, int count)  throws SQLException{
 		List<Integer> resultList = new ArrayList<Integer>();
 		Statement stmt = con.createStatement();
 		ResultSet rs = stmt.executeQuery(
-				"SELECT ngo_uid, ngo_name, ngo_type from ngos_table where ngo_type='user' order by ngo_type, ngo_name limit "+start+","+count);
+				"SELECT ngo_uid, ngo_name, ngo_type from ngos_table where ngo_type='"+type+"' order by ngo_type, ngo_name limit "+start+","+count);
 		while (rs.next()) {
 			resultList.add(rs.getInt("ngo_uid"));
 		}
@@ -509,7 +508,6 @@ public class NgoDao {
 	}
 
 	public static List<EventBean> getListOfEvents(Connection con, Integer ngoUid, boolean isOwner, int eventMonth, int eventYear, int start, int count) throws SQLException {
-		// TODO Auto-generated method stub
 		Statement stmt = null;
 		List<EventBean> eventList = new ArrayList<EventBean>();
 		stmt = con.createStatement();

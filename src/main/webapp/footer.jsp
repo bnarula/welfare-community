@@ -59,9 +59,11 @@ $('.vertical-heading').css({width : vHeadingWidth});
 	</div>
 	<hr class="no-margin">
 	<div class="row">
-		<div class="pull-left" style="margin-left:10px; margin-top:10px">
-			<span style="font-size:smaller;">Best viewed in Google Chrome and Mozilla Firefox</span>
-		</div>
+		<s:if test="%{#session.pageOwnerBean.type==\"auto\"}" > 
+			<div class="pull-left" style="margin-left:10px; margin-top:10px">
+				<span style="font-size:smaller;">NGO Icon made by <a href="https://www.flaticon.com/authors/zlatko-najdenovski">Zlatko Najdenovski</a> from www.flaticon.com</span>
+			</div>
+		</s:if>
 		<div class="pull-right" style="margin-right:10px;">
 			Founder & Developer: Bhavya Narula 
 			<a href="https://www.linkedin.com/in/bhavya-narula" target="_blank"><i class="fa fa-linkedin-square fa-2x" style="color:#0177b5"></i></a>

@@ -121,6 +121,11 @@
 .appreciation-href:hover {
 	text-shadow:black;
 }
+.auto-em{
+	color:gray;
+	font-size:smaller;
+	text-align:center;
+}
 
 </style>
 <script type="text/javascript" src="./js/jquery.slimscroll.min.js"></script>
@@ -212,6 +217,9 @@ $( document ).ready( function ()	 {
 				</a>
 			</div>
 			<h1 class="entity-name" ><s:property value="#session.pageOwnerBean.ngoName" /></h1>
+			<s:if test="%{#session.pageOwnerBean.type==\"auto\"}" > 
+				<p class="auto-em"><em>This is an auto-generated profile created from the data available at http://ngodarpan.gov.in</em><p>
+			</s:if>
 			<div class="row show-more-content">
 				<div class="row">
 					<div class="pull-left col-md-6 col-sm-6 col-xs-12" >

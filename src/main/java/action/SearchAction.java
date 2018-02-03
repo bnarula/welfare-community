@@ -92,7 +92,7 @@ public class SearchAction extends ActionSupport{
 			if(searchAction.equals("sbn")){
 				if(bsQuery.equals("*"))
 				{
-					resultList = NgoDao.listAllUserNgos(conn, start*5, 5);
+					resultList = NgoDao.listAllNgos(conn, "user", start*10, 10);
 					profileType = "user";
 				}
 				else
