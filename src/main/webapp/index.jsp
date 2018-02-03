@@ -399,7 +399,7 @@
                  		var div = jQuery('<div/>').appendTo(cslides);
                  		div.css({'display': 'none', 'text-align': 'center'});
                  		var a = jQuery('<a />').appendTo(div);
-                 		a.attr("href", "advanceSearch.action?sCauseList="+item.causeName+"&searchAction=sbc2&sState=All&sCity=All&profileType=auto&start=0");
+                 		a.attr("href", "advanceSearch.action?sCauseList="+item.causeCode+"&searchAction=sbc2&sState=All&sCity=All&profileType=auto&start=0");
                  		var causeIconSize = screen.width<480?' fa-2x':' fa-4x';
                  		
                  		var i = jQuery('<i/>', {
@@ -418,11 +418,14 @@
                  	jssor_C_slider_init();
     				}
              });
-          	if (navigator.geolocation) {
-       		navigator.geolocation.getCurrentPosition(showPosition);
-       	} else {
-       		x.innerHTML = "Geolocation is not supported by this browser.";
-       	}
+         	
+         	loadNandEJssor('');
+         	
+          	/* if (navigator.geolocation) {
+	       		navigator.geolocation.getCurrentPosition(showPosition);
+	       	} else {
+	       		//x.innerHTML = "Geolocation is not supported by this browser.";
+	       	} */
        });
   		
     $('#bsQuery1').on("keypress", function(e) {

@@ -132,7 +132,7 @@ function loadNandEJssor(currentCity){
 				var ngos = jsonResponse.currCityNgoList;
 				if(ngos.length)
 				{
-					$('#cityNgosDiv').css("display", "block");
+					$('#gallery-ngos').css("display", "block");
 				
 					var ngoSlides = $('#ngos-slides');
 					ngos.forEach(function(item){
@@ -143,13 +143,15 @@ function loadNandEJssor(currentCity){
 				}
             	var events = jsonResponse.currCityEventList;
             	if(events.length){
-            		$('#cityEventsDiv').css("display", "block");
+            		$('#gallery-events').css("display", "block");
             		var eventSlides = $('#events-slides');
     				events.forEach(function(item){
     					designEventSlides(item).appendTo(eventSlides);
                 		
                 	});
                 	jssor_E_slider_init();
+            	} else {
+            		$('#gallery-events').css("display", "none");
             	}
 				
             	
@@ -184,6 +186,7 @@ function showPosition(position) {
 		failure : function(resp){
 			console.log("failure");
 			console.log(resp);
+			loadNandEJssor('');
 		}
     });
 }
