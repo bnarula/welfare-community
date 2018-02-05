@@ -69,6 +69,7 @@ public class SearchAction extends ActionSupport{
 				cityList.putAll(AddressMasterDao.getListOfCities(conn, selectedState));
 			setSearchAction(searchAction);
 			
+			
 			if(sCauseList==null)
 				sCauseList="";
 			if(selectedState==null)
