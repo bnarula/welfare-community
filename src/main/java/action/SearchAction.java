@@ -96,26 +96,26 @@ public class SearchAction extends ActionSupport{
 					profileType = "user";
 				}
 				else
-					resultList = NgoDao.searchByName(conn, bsQuery, profileType.equalsIgnoreCase("user"), start*5, 5);
+					resultList = NgoDao.searchByName(conn, bsQuery, profileType.equalsIgnoreCase("user"), start*10, 10);
 			}
 			if(searchAction.equals("sbc1")){
-				resultList = NgoDao.searchByCause(conn, true, bsQuery, profileType, start*5, 5);
+				resultList = NgoDao.searchByCause(conn, true, bsQuery, profileType, start*10, 10);
 			}
 			if(searchAction.equals("sbc2")){
-				resultList = NgoDao.searchByCause(conn, false, sCauseList, profileType, start*5, 5);
+				resultList = NgoDao.searchByCause(conn, false, sCauseList, profileType, start*10, 10);
 			}
 			if(searchAction.equals("sbcl")){
 				if(!selectedState.equals("All") && (selectedCity.equals("All") || selectedCity.equals("")))
-					resultList = NgoDao.searchByCauseAndLocation(conn, sCauseList, selectedState, "state", profileType, start*5, 5); 
+					resultList = NgoDao.searchByCauseAndLocation(conn, sCauseList, selectedState, "state", profileType, start*10, 10); 
 				if(!selectedState.equals("All") && !selectedCity.equals("All") && !selectedCity.equals(""))
-					resultList = NgoDao.searchByCauseAndLocation(conn, sCauseList, selectedCity, "city", profileType, start*5, 5); 
+					resultList = NgoDao.searchByCauseAndLocation(conn, sCauseList, selectedCity, "city", profileType, start*10, 10); 
 			}
 			if(searchAction.equals("sbl")){
 				if(!selectedState.equals("All")  && (selectedCity.equals("All") || selectedCity.equals("")))
-					resultList = NgoDao.searchByLocation(conn, "state", selectedState, profileType, start*5, 5); 
+					resultList = NgoDao.searchByLocation(conn, "state", selectedState, profileType, start*10, 10); 
 				
 				if(!selectedState.equals("All")  && !selectedCity.equals("All") && !selectedCity.equals(""))
-					resultList = NgoDao.searchByLocation(conn, "city", selectedCity, profileType, start*5, 5);
+					resultList = NgoDao.searchByLocation(conn, "city", selectedCity, profileType, start*10, 10);
 			}
 			
 			System.out.println("search query end at"+new Date(System.currentTimeMillis()));
