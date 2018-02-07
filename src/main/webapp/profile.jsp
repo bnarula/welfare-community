@@ -20,6 +20,7 @@
 	margin-right: 20px;
 	}
 	
+	
 	.vignette {
 		border-radius: 30%;
 	    /* width: 300px; */
