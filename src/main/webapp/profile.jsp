@@ -59,6 +59,9 @@
 <link href="./css/profile-style.css" rel="stylesheet" type="text/css" />
 <link href="./css/jssor.css" rel="stylesheet" type="text/css" />
 
+
+
+
 <script type="text/javascript" src="./js/jssor.slider.min.js"></script>
 <script src="./js/validator.js"></script>
 <script src="./js/masonry.js"></script>
