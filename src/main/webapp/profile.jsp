@@ -21,6 +21,7 @@
 	}
 	
 	
+	
 	.vignette {
 		border-radius: 30%;
 	    /* width: 300px; */
