@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="./css/slick.css" />
 <link rel="stylesheet" href="./css/bootstrap-image-gallery.min.css" />
 <style>
+
 	.grid{
 	 	margin-top:20px;
 	}
