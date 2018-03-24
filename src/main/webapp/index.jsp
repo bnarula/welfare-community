@@ -57,6 +57,7 @@
 	.btn {
 		font-weight: initial;
 	}
+	
     </style>
     <div id="fb-root"></div>
 	
@@ -126,27 +127,33 @@
 							</div>
 						</div>
 						<div class="row" style="margin-top: 20px;">
-						<script>
-							var errorMessage = false,successMessage = false;; 
-						</script>
-						<s:if test="hasActionErrors()">
-			                <s:actionerror/>
-				                <div id="alert-error-login">
-				                </div>
-			                    <script>
-			                    	errorMessage = true;
-			                    </script>
-			                 
+							<script>
+								var errorMessage = false,successMessage = false;; 
+							</script>
+							<s:if test="hasActionErrors()">
+				                <s:actionerror/>
+					                <div id="alert-error-login">
+					                </div>
+				                    <script>
+				                    	errorMessage = true;
+				                    </script>
 			                </s:if>
 			                <s:if test="hasActionMessages()">
-			                <s:actionmessage/>
+			                	<s:actionmessage/>
 				                <div id="alert-success-login">
 				                </div>
 			                    <script>
 			                    	successMessage = true;
 			                    </script>
-		                 
-		                </s:if>
+		                	</s:if>
+		                </div>
+		                <div class="row wow animated bounceInUp" data-wow-delay="1.5s">
+							<div class="col-md-12">
+								<select id="ngoList" >
+						        	<option value="<s:property value="alreadySetNgoId" />"><s:property value="alreadySetNgoName" /></option>
+						        </select>
+						        <a href="<s:url action='SignUp'/>"  style="display:inline;" class="btn btn-success">Claim Your Profile</a>
+							</div>		                
 		                </div>
 					</div>
 				</div>
@@ -370,6 +377,35 @@
  	<script src="./js/index.js"></script>
  	<script src="./js/validator.js"></script>
  	<script src='./js/alert.js'></script>
+ 	<script type="text/javascript" src="./js/selectize.js"></script>
+	<link rel="stylesheet" type="text/css" href="./css/selectize.css" />
+       <script>
+       var globalTimeout;
+        $('#ngoList').selectize({
+			valueField: 'uid',
+			labelField: 'ngoName',
+			searchField: 'ngoName',
+			options: [],
+			openOnFocus : true,
+			create: false,
+			placeholder:'Search your NGO',
+			render: {
+				option: function(item, escape) {
+					return "<option value="+item.uid+">"+item.ngoName+"</option>";
+				}
+			},
+			load: function(query, callback) {
+				if (!query.length) return callback();
+				if (globalTimeout) clearTimeout(globalTimeout);
+			    globalTimeout = setTimeout(function(){
+				$.getJSON('ajaxGetAutoGenNgoNames', {"query" : query},
+		  				function(jsonResponse) {
+							callback(jsonResponse.autoGenNgos);
+						});
+				}, 1500);
+			}
+		});
+       </script>
     <script>
     $(window).on('load', function(){
     	var img = new Image();
@@ -521,6 +557,12 @@
 		
 	 }
     </script>
+    <style>
+    	.selectize-control {
+			float:left;
+			width:33%;
+		}
+    </style>
 
 
 

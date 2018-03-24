@@ -18,6 +18,7 @@ import beans.EventBean;
 import beans.NgoBean;
 import constants.ConfigConstants;
 import constants.Constants;
+import security.SecurityUtil;
 
 public class NgoDao {
 
@@ -684,5 +685,22 @@ public class NgoDao {
 		stmt.execute();
 		stmt.close();
 		
+	}
+
+	public static void claimProfile(Connection con, Integer claimUserId, String ngoEmail, String password) throws SQLException {
+		PreparedStatement stmt = con.prepareStatement("update ngos_table set ngo_type = 'user' where ngo_uid = ?");
+		stmt.setInt(1, claimUserId);
+		stmt.execute();
+		stmt = con.prepareStatement("update ngo_causes_table set nct_ngo_type = 'user' where nct_ngo_uid_fk = ?");
+		stmt.setInt(1, claimUserId);
+		stmt.execute();
+		stmt = con.prepareStatement("insert into users_table (usr_email, usr_password, usr_type, usr_uid, usr_verified) values(?, ?,?,?,?)");
+		stmt.setString(1, ngoEmail);
+		stmt.setString(2, SecurityUtil.encrypt(password));
+		stmt.setString(3, "n");
+		stmt.setInt(4, claimUserId);
+		stmt.setInt(5, 1);
+		stmt.execute();
+		stmt.close();		
 	}
 }

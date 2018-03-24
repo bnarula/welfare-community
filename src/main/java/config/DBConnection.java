@@ -41,7 +41,7 @@ public class DBConnection {
         p.setMinEvictableIdleTimeMillis(30000);
         p.setMinIdle(10);
         p.setLogAbandoned(true);
-        p.setRemoveAbandoned(true);
+        p.setRemoveAbandoned(ConfigConstants.get("db_conn_timeout").equals("true"));
         p.setJdbcInterceptors("org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;"+
           "org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer");
         

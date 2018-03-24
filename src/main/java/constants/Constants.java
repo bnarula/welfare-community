@@ -51,6 +51,8 @@ public class Constants {
 	public static final String HTML_FILE_APPLICATION_REJECT = ConfigConstants.get("ROOTPATH")+"/emails/ApplicationReject.html";
 	public static final String HTML_FILE_AUTO_MAIL = ConfigConstants.get("ROOTPATH")+"/emails/Auto.html";
 	public static final String HTML_FILE_PROMO_MAIL = ConfigConstants.get("ROOTPATH")+"/emails/Promo.html";
+	public static final String HTML_FILE_ACCOUNT_DETAILS_MAIL = ConfigConstants.get("ROOTPATH")+"/emails/AccountDetails.html";;
 	
 	public static final String DEFAULT_NGO_LOGO_PUBLIC_ID = "default_ngo_thumb";
+	
 }

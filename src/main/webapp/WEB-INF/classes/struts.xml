@@ -141,6 +141,14 @@
 			<result name="input">registration.jsp</result>
 			<result name="invalid.token">invalid_token.jsp</result>
 		</action>
+		<action name="claimProfile" class="action.RegistrationAction" method="claimProfileAction">
+			
+			<result name="racf">index.jsp</result>
+			<result name="racs" type="redirectAction">
+				<param name="actionName">openProfile</param>
+				<param name="pageOwnerCode">${pageOwnerCode}</param>
+			</result>
+		</action>
 		<action name="editProfile" class="action.RegistrationAction"
 			method="editProfile">
 			<interceptor-ref name="ownerAuthStack"></interceptor-ref>

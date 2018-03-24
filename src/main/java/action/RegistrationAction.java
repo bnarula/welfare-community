@@ -30,11 +30,10 @@ import dao.AddressDao;
 import dao.AddressMasterDao;
 import dao.CauseDao;
 import dao.NgoDao;
-import dao.PhotoDao;
 import dao.RegistrationDao;
 import dao.UserDao;
 import security.SecurityUtil;
-import util.ImageUtil;
+import util.MailUtil;
 
 public class RegistrationAction extends ActionSupport implements SessionAware {
 
@@ -79,7 +78,8 @@ public class RegistrationAction extends ActionSupport implements SessionAware {
 	private String alreadySetNgoId;
 	private String alreadySetNgoName;
 	
-	
+	private Integer claimUserId;
+	private String passcode;
 	
 	// default method for registration action to perform default actions.
 	public String execute() {
@@ -343,7 +343,41 @@ public class RegistrationAction extends ActionSupport implements SessionAware {
 		return ResultConstants.SUCCESS;
 	}
 
-
+	public String claimProfileAction() throws SQLException{
+		Connection con = null;
+		try{
+			con = DBConnection.getConnection();
+			con.setAutoCommit(false);
+			if(RegistrationDao.validatePasscode(con, claimUserId, passcode)){
+				ArrayList<String> selectables = new ArrayList<String>();
+				selectables.add(Constants.NGOBEAN_NAME);
+				selectables.add(Constants.NGOBEAN_EMAIL);
+				selectables.add(Constants.NGOBEAN_UID);
+				selectables.add(Constants.NGOBEAN_LOGO_P_ID);
+				NgoBean ngoBean = NgoDao.getNgoBeanFromId(con, claimUserId, selectables);
+				String password = SecurityUtil.encrypt(ngoBean.getNgoName()).substring(0, 6);
+				NgoDao.claimProfile(con, claimUserId, ngoBean.getNgoEmail(), password);
+				MailUtil.sendAccountDetails(ngoBean, password);
+				con.commit();
+				setPageOwnerCode(claimUserId);
+				sessionMap.put("userCode", claimUserId);
+			    sessionMap.put("username", ngoBean.getNgoName());
+			    sessionMap.put("logoUrl", ngoBean.getNgoLogoUrl());
+				return ResultConstants.REGISTRATION_ACTION_CREATE_SUCCESS;
+			} else {
+				return ResultConstants.ILLEGAL_ACCESS;
+			}
+			
+		} catch (SQLException sqle){
+			sqle.printStackTrace();
+			con.rollback();
+			return ResultConstants.REGISTRATION_ACTION_CREATE_FAILURE;
+		} catch (Exception e){
+			e.printStackTrace();
+			con.rollback();
+			return ResultConstants.REGISTRATION_ACTION_CREATE_FAILURE;
+		}
+	}
 	public String getAjaxResponseDummyMsg() {
 		return ajaxResponseDummyMsg;
 	}
@@ -596,6 +630,18 @@ public class RegistrationAction extends ActionSupport implements SessionAware {
 	}
 	public void setRepassword(String repassword) {
 		this.repassword = repassword;
+	}
+	public String getPasscode() {
+		return passcode;
+	}
+	public void setPasscode(String passcode) {
+		this.passcode = passcode;
+	}
+	public Integer getClaimUserId() {
+		return claimUserId;
+	}
+	public void setClaimUserId(Integer claimUserId) {
+		this.claimUserId = claimUserId;
 	}
 
 }
