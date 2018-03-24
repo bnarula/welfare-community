@@ -147,14 +147,6 @@
 			                    </script>
 		                	</s:if>
 		                </div>
-		                <div class="row wow animated bounceInUp" data-wow-delay="1.5s">
-							<div class="col-md-12">
-								<select id="ngoList" >
-						        	<option value="<s:property value="alreadySetNgoId" />"><s:property value="alreadySetNgoName" /></option>
-						        </select>
-						        <a href="<s:url action='SignUp'/>"  style="display:inline;" class="btn btn-success">Claim Your Profile</a>
-							</div>		                
-		                </div>
 					</div>
 				</div>
 				<!-- <div class="col-md-6  col-sm-6 hidden-xs hidden-sm">
