@@ -126,12 +126,12 @@ $(document).ready(function() {
 		<div class="row">
 			<div class="col-md-6 col-sm-6"><h3 class="pageHeading"><s:property value="pageHeading" /></h3></div>
 			<s:if test="%{mode!='edit'}">
-				<div class="pull-right">
+				<%-- <div class="pull-right">
 					<button class="btn btn-primary" name="showAutoGenModal" onclick="showAutoGenModal()">Fetch from auto-listed NGOs</button>
 				</div>
 				<script>
 					$(document).ready(function() {showAutoGenModal()});
-				</script>
+				</script> --%>
 			</s:if>
 		</div>
 		
@@ -151,12 +151,14 @@ $(document).ready(function() {
 		  <s:if test="%{mode!='edit'}">
 			  <div class="row">
 			  	<div class="col-md-4 col-xs-12 form-group has-feedback">
+			  		<label for="password">Password</label>
 				    <s:password cssClass="form-control" id="password" placeholder="Password" name="password" value="%{password}" required="" 
 				    data-error="Minimum 6 characters are required." data-minlength="6" maxlength="12"></s:password>
 				    <span class="fa form-control-feedback" aria-hidden="true"></span>
 				    <div class="help-block with-errors" ></div>
 				</div>
 				<div class="col-md-4 col-xs-12 form-group has-feedback">
+					<label for="repassword">Confirm Password</label>
 				    <s:password cssClass="form-control" name="repassword" id="repassword" placeholder="Retype password" value="" required="" 
 				    data-match="#password" data-match-error="Both Password fields do not match!" 
 				    data-minlength="6" maxlength="12"></s:password>
@@ -285,7 +287,7 @@ $(document).ready(function() {
 		</form>
 		</div>
 		<s:if test="%{mode!='edit'}">
-			<div class="modal fade" tabindex="-1" role="dialog" id="alertModal">
+			<%-- <div class="modal fade" tabindex="-1" role="dialog" id="alertModal">
 			  <div class="modal-dialog">
 			    <div class="modal-content">
 			      <div class="modal-header">
@@ -365,11 +367,11 @@ $(document).ready(function() {
 			      </div>
 			    </div><!-- /.modal-content -->
 			  </div><!-- /.modal-dialog -->
-			</div><!-- /.modal -->
+			</div><!-- /.modal --> --%>
 			<script>
-			function showAutoGenModal(){
+			/* function showAutoGenModal(){
 				$('#alertModal').modal('show');
-			};
+			}; */
 			
 			</script>
 		</s:if>

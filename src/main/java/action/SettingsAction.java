@@ -163,7 +163,9 @@ public class SettingsAction extends ActionSupport implements SessionAware {
 		Connection con = DBConnection.getConnection();
 		try {
 			con.setAutoCommit(false);
-			String existingLogoId = NgoDao.getLogoPublicId(con, ngoUid);
+			HashMap<String, String> map = (HashMap<String, String>)NgoDao.getLogoId(con, ngoUid);
+			String logoPubId = map.get("publicId");
+			int logoId = Integer.parseInt(map.get("id"));
 			HttpServletRequest request = ServletActionContext.getRequest();
 			String newLogoImg = request.getParameter("newLogoImg");
 			Gson g = new Gson();
@@ -172,9 +174,9 @@ public class SettingsAction extends ActionSupport implements SessionAware {
 			pb.setCategory("ngoLogo");
 			Integer pId = 0;
 			
-			if(!existingLogoId.equals(Constants.DEFAULT_NGO_LOGO_PUBLIC_ID)){
-				CloudinaryUtils.deleteImage(existingLogoId, null);
-				PhotoDao.update(con, pb, existingLogoId);
+			if(logoId != Constants.DEFAULT_NGO_LOGO_PHOTO_ID){
+				CloudinaryUtils.deleteImage(logoPubId, null);
+				PhotoDao.update(con, pb, logoPubId);
 			} else {
 				pId = PhotoDao.create(con, pb);
 				NgoDao.updateLogo(con, ngoUid, pId);

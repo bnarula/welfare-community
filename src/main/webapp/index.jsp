@@ -149,12 +149,6 @@
 		                </div>
 					</div>
 				</div>
-				<!-- <div class="col-md-6  col-sm-6 hidden-xs hidden-sm">
-					<div class="hand-container">
-					<img class="iphone-hand img_res wow animated bounceInUp" data-wow-duration="1.2s" src="./WelfareCommunity/img/iphone_hand.png"></img>
-					<div class="clearfix"></div>
-					</div>
-				</div> -->
 		</section>
 	</section>
 

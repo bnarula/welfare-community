@@ -82,7 +82,7 @@ $(document).ready(function() {
 		addToAddArray({'code':'<s:property value="code" />', 'state':'<s:property value="state" />',
 			'city':'<s:property value="city" />',
 			'area':'<s:property value="area" />', 'pincode':'<s:property value="pincode" />',
-			'street':'<s:property value="street" />'
+			'street':'<s:property value="street.replace(\"\n\", \" <br />\")" escapeHtml='false'/>'
 			});
 	</s:iterator>
 	

@@ -9,8 +9,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import beans.AddressBean;
 import beans.CauseBean;
@@ -576,16 +578,17 @@ public class NgoDao {
 		}
 		return count;
 	}
-	public static String getLogoPublicId(Connection conn, Integer ngoUid) throws SQLException{
-		String logoId = "";
+	public static Map<String, String> getLogoId(Connection conn, Integer ngoUid) throws SQLException{
+		HashMap<String, String> map = new HashMap<String, String>();
 		PreparedStatement stmt = conn.prepareStatement("select ngo_uid, ngo_logo_p_id, public_id"
-				+ " from ngos_table join photo_table on ngo_logo_p_id = id where ngo_uid=? and category = 'ngoLogo'");
+				+ " from ngos_table join photo_table on ngo_logo_p_id = id where ngo_uid=? ");
 		stmt.setInt(1, ngoUid);
 		ResultSet rs = stmt.executeQuery();
 		if(rs.next()){
-			logoId = rs.getString("public_id");
+			map.put("publicId", rs.getString("public_id"));
+			map.put("id", rs.getString("ngo_logo_p_id"));
 		}
-		return logoId;
+		return map;
 	}
 	public static void updateLogo(Connection conn, Integer ngoUid, int pId) throws SQLException{
 		PreparedStatement stmt = conn.prepareStatement("update ngos_table set ngo_logo_p_id =? where ngo_uid=?");

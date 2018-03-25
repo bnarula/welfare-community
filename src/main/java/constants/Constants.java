@@ -53,6 +53,9 @@ public class Constants {
 	public static final String HTML_FILE_PROMO_MAIL = ConfigConstants.get("ROOTPATH")+"/emails/Promo.html";
 	public static final String HTML_FILE_ACCOUNT_DETAILS_MAIL = ConfigConstants.get("ROOTPATH")+"/emails/AccountDetails.html";;
 	
-	public static final String DEFAULT_NGO_LOGO_PUBLIC_ID = "default_ngo_thumb";
+	public static final int DEFAULT_NGO_LOGO_PHOTO_ID = 0;
+	public static final int DEFAULT_EVENT_LOGO_PHOTO_ID = 0;
+	public static final int DEFAULT_FEMALE_VOL_PHOTO_ID = 0;
+	public static final int DEFAULT_MALE_VOL_PHOTO_ID = 0;
 	
 }
