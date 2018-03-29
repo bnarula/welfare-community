@@ -21,6 +21,7 @@ import beans.NgoBean;
 import constants.ConfigConstants;
 import constants.Constants;
 import security.SecurityUtil;
+import util.CloudinaryUtils;
 
 public class NgoDao {
 
@@ -622,35 +623,23 @@ public class NgoDao {
 		return list;
 	}
 
-	public static void deleteNgo(Connection conn, Integer ngoUid) throws SQLException {
+	public static void deleteNgo(Connection conn, Integer ngoUid) throws Exception {
 		PreparedStatement stmt = conn.prepareStatement("select evt_code_pk, evt_organizer_code_fk from events_table where evt_organizer_code_fk = ?");
 		stmt.setInt(1, ngoUid);
 		ResultSet rs = stmt.executeQuery();
 		String folderPath = "";
 		while(rs.next()){
-			folderPath = ConfigConstants.get("ROOTPATH")+"/images/"+ngoUid+"/events/"+rs.getInt("evt_code_pk")+"/";
-			EventDao.deleteEvent(conn, rs.getInt("evt_code_pk"), ngoUid);
+			int eventId = rs.getInt("evt_code_pk");
+			ArrayList<String> eventPhotos = EventDao.getPublicIdForPhotos(conn, eventId);
+			CloudinaryUtils.deleteImages(eventPhotos, null);
+			EventDao.deleteEvent(conn, eventId, ngoUid);
 		}
-		ArrayList<File> filesToDelete = new ArrayList<File>();
-			try {
-				folderPath = ConfigConstants.get("ROOTPATH")+"/images/"+ngoUid;
-				File imagesFolder = new File(folderPath);
-				for(File item : imagesFolder.listFiles()){
-					filesToDelete.add(item);
-				}
-				File aboutUsFolder = new File(folderPath+"/aboutUs");
-				for(File item : aboutUsFolder.listFiles()){
-					filesToDelete.add(item);
-				}
-				filesToDelete.add(new File(folderPath+"/events"));
-				filesToDelete.add(aboutUsFolder);
-				filesToDelete.add(imagesFolder);
-			} catch (NullPointerException e) {
-				e.printStackTrace();
-			}
 		stmt.close();
-		stmt = conn.prepareStatement("delete from photo_table where p_owner_id=?");
+		ArrayList<String> ngoPhotos = NgoDao.getPublicIdForAllPhotos(conn, ngoUid);
+		CloudinaryUtils.deleteImages(ngoPhotos, null);
+		stmt = conn.prepareStatement("delete from photo_table pt left join about_us_table aut on pt.owner_id = aut.au_code  where owner_id=? or aut.au_ngo_uid_fk=?");
 		stmt.setInt(1, ngoUid);
+		stmt.setInt(2, ngoUid);
 		stmt.execute();
 		stmt.close();
 		stmt = conn.prepareStatement("delete from ngos_table where ngo_uid=?");
@@ -666,11 +655,20 @@ public class NgoDao {
 		stmt.execute();
 		stmt.close();
 		conn.commit();
-		if(!filesToDelete.isEmpty()){
-			for(File item : filesToDelete){
-				item.delete();
-			}
+	}
+
+	private static ArrayList<String> getPublicIdForAllPhotos(Connection conn, Integer ngoUid) throws SQLException {
+		ArrayList<String> photoPubIds = new ArrayList<String>();
+		PreparedStatement stmt = conn.prepareStatement("select pt.id, pt.public_id, pt.owner_id, pt.category, aut.au_ngo_uid_fk from photo_table pt "
+				+ " left join about_us_table aut on pt.owner_id = aut.au_code where (pt.owner_id=? or aut.au_ngo_uid_fk=?) and "
+				+ "(category = 'ngoOthers' or category = 'ngoLogo'  or category = 'AU')");
+		stmt.setInt(1, ngoUid);
+		stmt.setInt(2, ngoUid);
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()){
+			photoPubIds.add(rs.getString("public_id"));
 		}
+		return photoPubIds;
 	}
 
 	public static void deleteAutoGenNgo(Connection con, String autoGenId) throws SQLException {
