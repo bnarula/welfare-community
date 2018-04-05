@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
+    pageEncoding="ISO-8859-1" import="constants.ConfigConstants"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -349,21 +349,23 @@ $(document).ready(function() {
 						<script>
 							function openUpload()
 							{
-								//document.getElementById("dropzone-area").style.display = 'block';
 								cloudinary.openUploadWidget({
 									cloud_name: 'welfare-cdn',
-									upload_preset: 'sofuqkk4',
-									folder: 'dev',
+									upload_preset: '<%=ConfigConstants.get("cloudinary_upload_prest")%>',
 									multiple: false,
-									max_file_size:1024000,
-									theme : 'minimal'
+									max_file_size: <%=ConfigConstants.get("cloudinary_max_file_size")%>,
+									theme : 'minimal',
+									thumbnails :'.galleryDiv'
 									}, 
 								        function(error, result) {
 											if(result){
 												var p = result[0];
+												var pivot = p.secure_url.indexOf('upload/');
+												var thumbUrl = p.secure_url.substring(0, pivot+7).concat('c_limit,h_200/').concat(p.secure_url.substring(pivot+7));
+												
 												var logoImg = {'publicId' : p.public_id,
 													 'url' : p.secure_url,
-													 'thumbUrl' : p.thumbnail_url,
+													 'thumbUrl' : thumbUrl,
 													 'fileName' : p.original_filename,
 													 'createdAt' : p.created_at};
 												$.ajax({

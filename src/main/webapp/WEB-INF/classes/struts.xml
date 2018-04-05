@@ -248,28 +248,6 @@
 			<result name="success">photos.jsp</result>
 		</action>
 
-		<action name="uploadPhotosAction" class="action.PhotosAction"
-			method="uploadPhotosAction">
-			<interceptor-ref name="ownerAuthStack"></interceptor-ref>
-			<interceptor-ref name="fileUpload">
-				<param name="maximumSize">3145728</param>
-			</interceptor-ref>
-			<interceptor-ref name="params">
-				<param name="excludeParams">dojo\..*,^struts\..*</param>
-			</interceptor-ref>
-			<interceptor-ref name="validation">
-				<param name="excludeMethods">input,back,cancel,browse</param>
-			</interceptor-ref>
-			<interceptor-ref name="workflow">
-				<param name="excludeMethods">input,back,cancel,browse</param>
-			</interceptor-ref>
-			<result name="success">photos.jsp</result>
-		</action>
-
-
-		
-
-
 		<action name="openContactUs" class="action.ContactUsAction"
 			method="openContactUs">
 			<interceptor-ref name="guestAuthStack"></interceptor-ref>
@@ -462,7 +440,14 @@
 				<param name="noCache">true</param>
 			</result>
 		</action>
-		
+		<action name="uploadPhotosAction" class="action.PhotosAction"
+			method="uploadPhotosAction">
+			<interceptor-ref name="ownerAuthStack"></interceptor-ref>
+			<result type="json">
+				<param name="excludeNullProperties">true</param>
+				<param name="noCache">true</param>
+			</result>
+		</action>
 	
 		
 		

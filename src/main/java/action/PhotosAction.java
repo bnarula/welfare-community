@@ -115,10 +115,6 @@ public class PhotosAction extends ActionSupport implements SessionAware {
 		return ResultConstants.SUCCESS;
 	}
 
-	/*public String addNewPhoto(){
-		String ngoUid = ""+sessionMap.get("userCode");
-		
-	}*/
 	public String uploadPhotosAction() throws JSONException, JsonParseException, IOException
 	{
 		Integer ngoUid = Integer.parseInt(""+sessionMap.get("userCode"));
@@ -144,10 +140,12 @@ public class PhotosAction extends ActionSupport implements SessionAware {
 				PhotoBean upPhoto = pbArr[i];
 				upPhoto.setOwnerId(owner);
 				upPhoto.setCategory(cat);
-				PhotoDao.create(con, upPhoto);
+				int id = PhotoDao.create(con, upPhoto);
+				upPhoto.setId(id);
+				listOfPhotos.add(upPhoto);
+				ajaxResponseDummyMsg = "Upload Successfull";
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return ResultConstants.SUCCESS;
@@ -203,10 +201,6 @@ public class PhotosAction extends ActionSupport implements SessionAware {
 
 	public void setPageOwnerCode(Integer pageOwnerCode) {
 		this.pageOwnerCode = pageOwnerCode;
-	}
-	public static String getDestinationPath(String category, String ngoUid, String eventId){
-		String rootpath = ConfigConstants.get("ROOTPATH")+"/images/";
-		return category.startsWith("ngo")?rootpath+ngoUid+"/":category.startsWith("event")?rootpath+ngoUid+"/"+eventId:rootpath+"volunteers"+"/";
 	}
 	
 	public List<PhotoBean> getListOfPhotos() {

@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
+    pageEncoding="ISO-8859-1" import="constants.ConfigConstants"%>
     <%@ taglib prefix="s" uri="/struts-tags" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -58,41 +58,50 @@
 	{
 		//document.getElementById("dropzone-area").style.display = 'block';
 		cloudinary.openUploadWidget({
-			cloud_name: 'welfare-cdn',
-			upload_preset: 'sofuqkk4',
-			folder: 'dev',
-			max_file_size:1024000,
-			thumbnails :'.galleryDiv'}, 
-		        function(error, result) {
-					if(result.length){
-						var photosArr = [];
-						result.forEach(function(p){
-							photosArr.push({'publicId' : p.public_id,
-								 'url' : p.secure_url,
-								 'thumbUrl' : p.thumbnail_url,
-								 'fileName' : p.original_filename,
-								 'createdAt' : p.created_at});
-						});
-						var postData = {'from' : '<s:property value="from"/>',
-								 'upPhotos' : JSON.stringify(photosArr)
-						};
-						<s:if test="%{from==\"event\"}">
-							postData.eventId = <s:property value="eventId" />; 
-						</s:if>
-						$.ajax({
-						    method: "POST",
-						    url: "uploadPhotosAction",
-						    data: postData,
-						    traditional: true,
-						    success:
-						        function(jsonResponse) {
-									iqwerty.toast.Toast(jsonResponse.ajaxResponseDummyMsg);
-									loader.stop();	
-								}
-						});
-					}				
-					
-				});
+				cloud_name: 'welfare-cdn',
+				upload_preset: '<%=ConfigConstants.get("cloudinary_upload_prest")%>',
+				max_file_size:<%=ConfigConstants.get("cloudinary_max_file_size")%>,
+			}, 
+	        function(error, result) {
+				if(result.length){
+					var photosArr = [];
+					result.forEach(function(p){
+						var pivot = p.secure_url.indexOf('upload/');
+						var thumbUrl = p.secure_url.substring(0, pivot+7).concat('c_limit,h_200/').concat(p.secure_url.substring(pivot+7));
+						photosArr.push({'publicId' : p.public_id,
+							 'url' : p.secure_url,
+							 'thumbUrl' : thumbUrl,
+							 'fileName' : p.original_filename,
+							 'createdAt' : p.created_at});
+					});
+					var postData = {'from' : '<s:property value="from"/>',
+							 'upPhotos' : JSON.stringify(photosArr)
+					};
+					<s:if test="%{from==\"event\"}">
+						postData.eventId = <s:property value="eventId" />; 
+					</s:if>
+					$.ajax({
+					    method: "POST",
+					    url: "uploadPhotosAction",
+					    data: postData,
+					    traditional: true,
+					    success:
+					        function(jsonResponse) {
+					    		jsonResponse.listOfPhotos.forEach(function(img){
+					    			var image = {
+						    				id : img.id,
+						    				url : img.url,
+						    				thumbUrl : img.thumbUrl
+						    		};
+						    		imageElement(image, <s:property value="#session.owner" />);
+					    		});
+								iqwerty.toast.Toast(jsonResponse.ajaxResponseDummyMsg);
+								loader.stop();	
+							}
+					});
+				}				
+				
+			});
 	}
 		
 	

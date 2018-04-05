@@ -2,13 +2,14 @@ package util;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import com.cloudinary.Api;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+
+import constants.ConfigConstants;
 
 public class CloudinaryUtils {
 	private static Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
@@ -27,6 +28,8 @@ public class CloudinaryUtils {
 		if (options == null){
 			options = ObjectUtils.emptyMap();
 		}
+		options.put("upload_preset", ConfigConstants.get("cloudinary_upload_prest"));
+		
 		Map uploadResult = cloudinary.uploader().upload(file, options);
 		return uploadResult;
 	}

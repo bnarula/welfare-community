@@ -100,15 +100,6 @@ public class RegistrationAction extends ActionSupport implements SessionAware {
 				pincodeList = AddressMasterDao.getListOfPincodes(conn, selectedCity);
 				areaList = AddressMasterDao.getListOfAreas(conn, selectedPincode);
 				pageHeading = "Become a member of Welfare Community!";
-				if(!"".equals(alreadySetNgoId) && alreadySetNgoId!=null){
-					File logFile = new File(ConfigConstants.get("ROOTPATH")+"/logs/auto-visited.csv");
-					try(FileOutputStream fosLogs = new FileOutputStream(logFile, true)){
-						fosLogs.write((alreadySetNgoId+","+new Date(System.currentTimeMillis())+"\n").getBytes());
-			         } catch (Exception e) {
-			        	 e.printStackTrace();
-				
-			}
-				}
 			} else {
 				pageHeading = "Edit your Profile!";
 			}
@@ -194,20 +185,8 @@ public class RegistrationAction extends ActionSupport implements SessionAware {
 			try {
 				con = DBConnection.getConnection();
 				con.setAutoCommit(false);
-				//String ngoUid = SecurityUtil.encrypt(ngoBean.getNgoEmail());
 				ngoBean.setNgoName(util.StringUtil.toSentanceCase(ngoBean.getNgoName().toLowerCase()));
 				
-				if(!"".equals(autoGenId) && autoGenId!=null){
-					NgoDao.deleteAutoGenNgo(con, autoGenId);
-					File logFile = new File(ConfigConstants.get("ROOTPATH")+"/logs/auto-converted.csv");
-					try(FileOutputStream fosLogs = new FileOutputStream(logFile, true)){
-						fosLogs.write((autoGenId+","+new Date(System.currentTimeMillis())+"\n").getBytes());
-			         } catch (Exception e) {
-			        	 e.printStackTrace();
-				
-			         }
-				
-				}
 				Integer ngoUid = NgoDao.createNew(con, ngoBean.getNgoEmail(), ngoBean.getNgoName(), "",
 						"", 0, ngoBean.getAlias());
 				

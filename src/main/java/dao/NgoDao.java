@@ -628,16 +628,16 @@ public class NgoDao {
 		stmt.setInt(1, ngoUid);
 		ResultSet rs = stmt.executeQuery();
 		String folderPath = "";
+		ArrayList<String> eventPhotos = new ArrayList<String>();
 		while(rs.next()){
 			int eventId = rs.getInt("evt_code_pk");
-			ArrayList<String> eventPhotos = EventDao.getPublicIdForPhotos(conn, eventId);
-			CloudinaryUtils.deleteImages(eventPhotos, null);
+			eventPhotos = EventDao.getPublicIdForPhotos(conn, eventId);
 			EventDao.deleteEvent(conn, eventId, ngoUid);
 		}
 		stmt.close();
 		ArrayList<String> ngoPhotos = NgoDao.getPublicIdForAllPhotos(conn, ngoUid);
-		CloudinaryUtils.deleteImages(ngoPhotos, null);
-		stmt = conn.prepareStatement("delete from photo_table pt left join about_us_table aut on pt.owner_id = aut.au_code  where owner_id=? or aut.au_ngo_uid_fk=?");
+		
+		stmt = conn.prepareStatement("delete pt from photo_table pt left join about_us_table aut on pt.owner_id = aut.au_code  where owner_id=? or aut.au_ngo_uid_fk=?");
 		stmt.setInt(1, ngoUid);
 		stmt.setInt(2, ngoUid);
 		stmt.execute();
@@ -655,6 +655,12 @@ public class NgoDao {
 		stmt.execute();
 		stmt.close();
 		conn.commit();
+		if(eventPhotos.size() > 0){
+			CloudinaryUtils.deleteImages(eventPhotos, null);
+		}
+		if(ngoPhotos.size() > 0){
+			CloudinaryUtils.deleteImages(ngoPhotos, null);
+		}
 	}
 
 	private static ArrayList<String> getPublicIdForAllPhotos(Connection conn, Integer ngoUid) throws SQLException {

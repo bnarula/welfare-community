@@ -109,7 +109,7 @@ public class VerificationAction  extends ActionSupport {
 		int randCode = (int)(Math.random()*1000000);
 		String passCode = SecurityUtil.encrypt(""+randCode);
 		passCode = passCode.substring(0,8);
-		verEmail = verEmail.replaceAll("%#verificationLink#%", ConfigConstants.get("ROOTPATH")+"verifyNGO.action?userCode="+ngoUid+"&passcode="+passCode);
+		verEmail = verEmail.replaceAll("%#verificationLink#%", ConfigConstants.get("ROOTURL")+"verifyNGO.action?userCode="+ngoUid+"&passcode="+passCode);
 		verEmail = verEmail.replaceAll("%#resendLink#%", ConfigConstants.get("ROOTURL")+"resendVerificationMail.action?userCode="+ngoUid);
 		MailUtil.sendMimeMessage(email, "Verify your account with Welfare Community", verEmail);
 		return passCode;

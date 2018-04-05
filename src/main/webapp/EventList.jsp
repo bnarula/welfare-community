@@ -119,7 +119,7 @@
 						</div>
 					</a>
 				 </s:iterator>
-				 <nav style="width:165px; margin:0px auto;">
+				 <nav style="width:170px; margin:0px auto;">
 				  <ul class="pagination">
 				    <li <s:if test="%{start==0}">class="disabled"</s:if>>
 				      <a id="prevPage" href="<s:url action='getListOfEvents'>

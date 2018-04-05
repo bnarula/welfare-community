@@ -223,8 +223,8 @@ public class SettingsAction extends ActionSupport implements SessionAware {
 			Integer ngoUid = Integer.parseInt(""+sessionMap.get("userCode"));
 			NgoDao.deleteNgo(conn, ngoUid);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return ResultConstants.FAILURE;
 		}
 		return ResultConstants.SUCCESS;
 	}
