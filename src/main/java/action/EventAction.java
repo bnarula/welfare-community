@@ -118,9 +118,7 @@ public class EventAction extends ActionSupport implements SessionAware{
 			conn.setAutoCommit(false);
 			eventId = EventDao.createNewEvent(conn, eventBean, ngoUid);
 			eventBean.setId(eventId);
-			Map options = new HashMap();
-			options.put("folder", "dev");
-			Map<String, String> result = CloudinaryUtils.uploadImage(imgFile, options);
+			Map<String, String> result = CloudinaryUtils.uploadImage(imgFile, null);
 			PhotoBean upPhoto = new PhotoBean(result, "eventDp", eventId);
 			int pId = PhotoDao.create(conn, upPhoto);
 			EventDao.updateLogo(conn, eventId, pId);
@@ -190,7 +188,10 @@ public class EventAction extends ActionSupport implements SessionAware{
 		} else
 			setEventListHeading("NGO Events");
 		try(Connection conn = DBConnection.getConnection()) {
-			boolean isOwner = ngoUid.equals(Integer.parseInt("" + sessionMap.get("userCode")));
+			boolean isOwner = false;
+			if(null !=  sessionMap.get("userCode")) {
+				isOwner = ngoUid.equals(Integer.parseInt("" + sessionMap.get("userCode")));
+			}
 			eventBeanList = NgoDao.getListOfEvents(conn, ngoUid, isOwner, eventMonth, eventYear, start*5, 5);
 			setHasNext(!(eventBeanList.size()<5));
 		} catch (SQLException e) {
@@ -236,9 +237,7 @@ public class EventAction extends ActionSupport implements SessionAware{
 			if(imgFile != null){
 				String existingLogoId = EventDao.getDPPublicId(conn, eventId);
 		    	CloudinaryUtils.deleteImage(existingLogoId, null);
-		    	Map options = new HashMap();
-				options.put("folder", "dev");
-		    	Map<String, String> result = CloudinaryUtils.uploadImage(imgFile, options);
+		    	Map<String, String> result = CloudinaryUtils.uploadImage(imgFile, null);
 		    	PhotoBean upPhoto = new PhotoBean(result, "eventDp", eventId);
 				PhotoDao.update(conn, upPhoto, existingLogoId);
 			}

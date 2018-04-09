@@ -1,9 +1,11 @@
 package action;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -25,6 +27,7 @@ import dao.PhotoDao;
 import dao.VerificationDao;
 import dao.VolunteerDao;
 import security.SecurityUtil;
+import util.CloudinaryUtils;
 import util.ImageUtil;
 import util.MailUtil;
 
@@ -102,17 +105,14 @@ public class VolunteerAction extends ActionSupport {
 		}
 		return ResultConstants.FAILURE;
 	}
-	private int saveImage(Connection con, Integer id, String email, String gender) throws SQLException {
+	private int saveImage(Connection con, Integer id, String email, String gender) throws SQLException, IOException {
 		int pId = 0;
-		pId = gender.equalsIgnoreCase("female")?3:2;
+		pId = gender.equalsIgnoreCase("female")?2:3;
+		
 		try {
-			String filePath = ImageUtil.getDestinationPath("volunteer", null, null);
-			String destPath = ConfigConstants.get("IMAGES_ROOTPATH")+filePath;
-			String pFPath = ConfigConstants.get("IMAGES_ROOTPATH")+filePath;
-			String pFExt = ImageUtil.getExtension(imgFileContentType);
-			ImageUtil.saveImage(imgFile, email, destPath, pFExt);
-			/*PhotoBean vPhoto = new PhotoBean(0, "", url, thumbUrl, fileName, createdAt, category, id);
-			pId = PhotoDao.create(con, email, pFPath, pFExt, "volunteer", id);*/
+			Map<String, String> result = CloudinaryUtils.uploadImage(imgFile, null);
+			PhotoBean upPhoto = new PhotoBean(result, "volunteer", id);
+			pId = PhotoDao.create(con, upPhoto);
 		} catch (NullPointerException npe) {
 			
 		}

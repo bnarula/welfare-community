@@ -15,23 +15,19 @@ public class VolunteerDao {
 	public static Integer createNew(Connection conn, VolunteerBean volunteerBean) throws SQLException {
 		Integer id = 0;
 		PreparedStatement stmt = null;
-		try {
-			stmt = conn.prepareStatement("insert into volunteer_table(v_email, v_name, v_phone, v_phone, v_gender) "
-					+ "values(?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS  );
-			stmt.setString(1, volunteerBean.getEmail());
-			stmt.setString(2, volunteerBean.getName());
-			stmt.setString(3, volunteerBean.getContact());
-			stmt.setInt(4, volunteerBean.getAge());
-			stmt.setString(5, volunteerBean.getGender());
-			
-			stmt.execute();
-			ResultSet rsGetAutoId = stmt.getGeneratedKeys();
-			if (rsGetAutoId.next())
-				id = rsGetAutoId.getInt(1);
-			stmt.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		stmt = conn.prepareStatement("insert into volunteer_table(v_email, v_name, v_phone, v_age, v_gender) "
+				+ "values(?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS  );
+		stmt.setString(1, volunteerBean.getEmail());
+		stmt.setString(2, volunteerBean.getName());
+		stmt.setString(3, volunteerBean.getContact());
+		stmt.setInt(4, volunteerBean.getAge());
+		stmt.setString(5, volunteerBean.getGender());
+		
+		stmt.execute();
+		ResultSet rsGetAutoId = stmt.getGeneratedKeys();
+		if (rsGetAutoId.next())
+			id = rsGetAutoId.getInt(1);
+		stmt.close();
 		return id;
 	}
 

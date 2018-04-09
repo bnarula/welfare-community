@@ -166,16 +166,29 @@ a:hover
 		white-space: nowrap; overflow: hidden;text-overflow: ellipsis;
 	}
 	.vertical-heading {
+	text-orientation: upright;
+    writing-mode: vertical-rl;
 	color: #043f40;
    	font-size: 12px;
     text-shadow: 1.5px 1.5px #F3EFE0;
     font-family: segoe ui;
    	font-weight: 600;
-   	letter-spacing: 40px;
+   	letter-spacing: 0px;
    	background-color: #f8f8f8;
-    border-color: #e7e7e7;
+    border:1px solid #e7e7e7;
     text-align:center;
-}
+    height:100px;
+	}
+	@media screen and (max-width: 1400px) {
+	  .vertical-heading {
+	    width:3%
+	  }
+	}
+	@media screen and (max-width: 991px) {
+	  .vertical-heading {
+	    width:6%
+	  }
+	}
 .container {
 	min-height:550px;
 }

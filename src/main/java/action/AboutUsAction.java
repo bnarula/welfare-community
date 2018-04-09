@@ -63,9 +63,7 @@ public class AboutUsAction implements SessionAware {
 				if (imgFile!=null) {
 					String existingLogoId = AboutUsDao.getPhotoPublicId(conn, toBeUpdatedCode); 
 			    	CloudinaryUtils.deleteImage(existingLogoId, null);
-			    	Map options = new HashMap();
-					options.put("folder", "dev");
-			    	Map<String, String> result = CloudinaryUtils.uploadImage(imgFile, options);
+			    	Map<String, String> result = CloudinaryUtils.uploadImage(imgFile, null);
 			    	PhotoBean upPhoto = new PhotoBean(result, "AU", toBeUpdatedCode);
 					PhotoDao.update(conn, upPhoto, existingLogoId);
 					newAboutUsPhoto = result.get("secure_url");
@@ -165,9 +163,7 @@ public class AboutUsAction implements SessionAware {
 		String url = "";
 		Integer userCode = Integer.parseInt(""+sessionMap.get("userCode"));
 		try {
-			Map options = new HashMap();
-			options.put("folder", "dev");
-			Map<String, String> result = CloudinaryUtils.uploadImage(imgFile, options);
+			Map<String, String> result = CloudinaryUtils.uploadImage(imgFile, null);
 			url = result.get("secure_url");
 			PhotoBean upPhoto = new PhotoBean(result, "AU", auId);
 			int pId = PhotoDao.create(con, upPhoto);

@@ -438,6 +438,10 @@
                  		
                  	});
                  	jssor_C_slider_init();
+                 	/* $Jssor$.$AddEvent(window, "load", ScaleSliderCB(jssor_C_slider));
+                 	$Jssor$.$AddEvent(window, "resize", ScaleSliderCB(jssor_C_slider));
+                 	$Jssor$.$AddEvent(window, "orientationchange", ScaleSliderCB(jssor_C_slider));
+                 	ScaleSliderCB(jssor_C_slider); */
     				}
              });
          	

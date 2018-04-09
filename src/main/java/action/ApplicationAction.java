@@ -138,10 +138,10 @@ public class ApplicationAction {
 	public void setStart(Integer start) {
 		this.start = start;
 	}
-	public String getVIdArr() {
+	public String getvIdArr() {
 		return vIdArr;
 	}
-	public void setVIdArr(String VIdArr) {
+	public void setvIdArr(String VIdArr) {
 		this.vIdArr = VIdArr;
 	}
 	public boolean isHasNext() {

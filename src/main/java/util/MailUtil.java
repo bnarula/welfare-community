@@ -76,7 +76,7 @@ public class MailUtil {
 				public void run() {
 					try {
 						webResource.type(MediaType.MULTIPART_FORM_DATA_TYPE).post(ClientResponse.class, form);
-						System.out.println("deletion complete");
+						System.out.println("mail sending complete");
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -92,7 +92,7 @@ public class MailUtil {
 	       client = Client.create(cc);
 	       client.addFilter(new HTTPBasicAuthFilter("api","key-dfef560674b4ec55206662779a98bc22"));
 	       WebResource webResource =
-	               client.resource("https://api.mailgun.net/v3/admin.welfarecommunity.org/"+"messages");
+	               client.resource("https://api.mailgun.net/v3/welfarecommunity.org/"+"messages");
 	       FormDataMultiPart form = new FormDataMultiPart();
 	       form.field("from", "Welfare Community <postmaster@admin.welfarecommunity.org>");
 	       form.field("to", toEmail);

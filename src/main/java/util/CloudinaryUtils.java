@@ -2,6 +2,7 @@ package util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,14 +20,14 @@ public class CloudinaryUtils {
 	private static Api api = cloudinary.api();
 	public static Map deleteImage(String public_id, Map options) throws IOException{
 		if (options == null){
-			options = ObjectUtils.emptyMap();
+			options = new HashMap<String, String>();
 		}
 		Map result = cloudinary.uploader().destroy(public_id, options);
 		return result;
 	}
 	public static Map uploadImage(File file, Map options) throws IOException{
 		if (options == null){
-			options = ObjectUtils.emptyMap();
+			options = new HashMap<String, String>();
 		}
 		options.put("upload_preset", ConfigConstants.get("cloudinary_upload_prest"));
 		
@@ -35,7 +36,7 @@ public class CloudinaryUtils {
 	}
 	public static void deleteImages(List<String> public_ids, Map options) throws Exception{
 		if (options == null){
-			options = ObjectUtils.emptyMap();
+			options = new HashMap<String, String>();
 		}
 		final Map lOptions  = options;
 		final List<String> lPublicIds = public_ids;

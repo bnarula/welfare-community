@@ -1,5 +1,6 @@
 var slideWidth = '';
- jssor_C_slider_init = function() {
+var jssor_C_slider, jssor_N_slider, jssor_E_slider;
+var jssor_C_slider_init = function() {
 	slideWidth = window.mobileScreen?100:200; 
     var jssor_C_options = {
       $AutoPlay: true,
@@ -12,35 +13,17 @@ var slideWidth = '';
         $Steps: window.mobileScreen?2:5
       }
     };
+    jssor_C_slider = new $JssorSlider$("jssor_C", jssor_C_options);
     
-    var jssor_C_slider = new $JssorSlider$("jssor_C", jssor_C_options);
-    
-    //responsive code begin
-    //you can remove responsive code if you don't want the slider scales while window resizing
-    function ScaleSlider() {
-        var refSize = jssor_C_slider.$Elmt.parentNode.clientWidth;
-        if (refSize) {
-            //refSize = Math.min(refSize, 809);
-            jssor_C_slider.$ScaleWidth(refSize);
-        }
-        else {
-            window.setTimeout(ScaleSlider, 30);
-        }
-    }
-    ScaleSlider();
-    $Jssor$.$AddEvent(window, "load", ScaleSlider);
-    $Jssor$.$AddEvent(window, "resize", ScaleSlider);
-    $Jssor$.$AddEvent(window, "orientationchange", ScaleSlider);
-    //responsive code end
 };
 
-jssor_N_slider_init = function() {
+var jssor_N_slider_init = function() {
     
     var jssor_N_options = {
       $AutoPlay: false,
       $SlideWidth: 200,
-      $SlideSpacing: 10,
-      $Cols: 5,
+      //$SlideSpacing: 10,
+      $Cols: 10,
       $Loop : 0,
       $ArrowNavigatorOptions: {
         $Class: $JssorArrowNavigator$,
@@ -48,12 +31,12 @@ jssor_N_slider_init = function() {
       }
     };
     
-    var jssor_N_slider = new $JssorSlider$("jssor_N", jssor_N_options);
+    jssor_N_slider = new $JssorSlider$("jssor_N", jssor_N_options);
     
 
 };
 
-jssor_E_slider_init = function() {
+var jssor_E_slider_init = function() {
     
     var jssor_E_options = {
       $AutoPlay: false,
@@ -67,10 +50,30 @@ jssor_E_slider_init = function() {
       }
     };
     
-    var jssor_E_slider = new $JssorSlider$("jssor_E", jssor_E_options);
+    jssor_E_slider = new $JssorSlider$("jssor_E", jssor_E_options);
     
  
 };
+
+
+//responsive code begin
+//you can remove responsive code if you don't want the slider scales while window resizing
+
+var ScaleSliderCB = function(which){
+	console.log(which);
+	return function ScaleSlider() {
+	    var refSize = which.$Elmt.parentNode.clientWidth;
+	    if (refSize) {
+	        refSize = Math.min(refSize, 809);
+	    	which.$ScaleWidth(refSize);
+	    }
+	    else {
+	        window.setTimeout(ScaleSlider, 30);
+	    }
+	}
+}
+
+//responsive code end
 
 function designNGOSlides(ngo){
 	var container = $('<div />', {'style': ' padding:5px; height:150px;'});
@@ -140,6 +143,10 @@ function loadNandEJssor(currentCity){
 	            		
 	            	});
 	            	jssor_N_slider_init();
+	            	/*$Jssor$.$AddEvent(window, "load", ScaleSliderCB(jssor_N_slider));
+	            	$Jssor$.$AddEvent(window, "resize", ScaleSliderCB(jssor_N_slider));
+	            	$Jssor$.$AddEvent(window, "orientationchange", ScaleSliderCB(jssor_N_slider));
+	            	ScaleSliderCB(jssor_N_slider);*/
 				}
             	var events = jsonResponse.currCityEventList;
             	if(events.length){
@@ -150,6 +157,10 @@ function loadNandEJssor(currentCity){
                 		
                 	});
                 	jssor_E_slider_init();
+                	/*$Jssor$.$AddEvent(window, "load", ScaleSliderCB(jssor_E_slider));
+                	$Jssor$.$AddEvent(window, "resize", ScaleSliderCB(jssor_E_slider));
+                	$Jssor$.$AddEvent(window, "orientationchange", ScaleSliderCB(jssor_E_slider));
+                	ScaleSliderCB(jssor_E_slider);*/
             	} else {
             		$('#gallery-events').css("display", "none");
             	}

@@ -510,7 +510,7 @@
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 				<h4 class="modal-title">Please fill in some of your personal details for application.</h4>
 			  </div>
-			  <form enctype="multipart/form-data" method="post" action="/saveVolunteerInfo"  role="form" name="volunForm">
+			  <form enctype="multipart/form-data" method="post" action="saveVolunteerInfo"  role="form" name="volunForm">
 			  	<div class="modal-body">
 				  	<s:hidden name="eventId" value="%{eventBean.id}"></s:hidden>
 				  	<s:hidden name="pageOwnerCode" value="%{pageOwnerCode}"></s:hidden>

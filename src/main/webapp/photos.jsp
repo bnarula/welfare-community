@@ -233,7 +233,7 @@
 				var selection = (selectedItemsArr && selectedItemsArr.length)
 				$('#bDelete').attr('disabled', !selection);
 				$('#bAddToSlideshow').attr('disabled', !selection);
-				$('bRemoveFromSlideshow').attr('disabled', !selection);
+				$('#bRemoveFromSlideshow').attr('disabled', !selection);
 			}
 			function imageElement(image, owner) {
 				var imgId = image.id;

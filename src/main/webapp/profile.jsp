@@ -186,14 +186,14 @@
      		
 				<div class="row" style="margin-bottom:25px;" id="photos-row">
 					<s:if test="%{photoList.size()!=0}">
-						<a href="<s:url action='getPhotos'>
+						
+						<div class="col-md-1 col-sm-1 col-xs-1 vertical-heading">
+			     			<a href="<s:url action='getPhotos'>
 					             	 <s:param name="from">ngo</s:param>
 					             	 <s:param name="pageOwnerCode"><s:property value="#session.pageOwnerBean.uid"/></s:param>
-					              </s:url>" title="View All">
-						<div class="col-xs-1 vertical-heading">
-			     			P H O T O S
+					              </s:url>" title="View All">PHOTOS</a>
 			     		</div>
-			     		</a>
+			     		
 		     			<div class="col-md-5 col-sm-11 col-xs-11">
 			     			<div  id="jssor_photos" style="position: relative; top: 0px; left: 0px; height: 100px; overflow: hidden; visibility: hidden;">
 						        <!-- Loading Screen -->
@@ -224,13 +224,13 @@
 					    </div>
 					     </s:if>
 					     <s:if test="%{pageOwnerBean.ngoEventBeanList.size()!=0}">	
-		     		<a href="<s:url action='getListOfEvents'><s:param name="pageOwnerCode">
+		     		
+			     		<div class="col-md-1 col-sm-1 col-xs-1 vertical-heading">
+			     			<a href="<s:url action='getListOfEvents'><s:param name="pageOwnerCode">
 									<s:property value="#session.pageOwnerBean.uid"/></s:param></s:url>"
-								title="View Events">
-			     		<div class="col-xs-1 vertical-heading">
-			     			E V E N T S
-		    </div>
-		     		</a>
+								title="View Events">EVENTS</a>
+		   				 </div>
+		     		
 		     			<div class="col-md-5 col-sm-11 col-xs-11">
 			     			<div id="jssor_events" style="position: relative; top: 0px; left: 0px; height: 100px; overflow: hidden; visibility: hidden;">
 						        <!-- Loading Screen -->
