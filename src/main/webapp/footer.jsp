@@ -2,12 +2,6 @@
 <script src="./js/tour.js"></script>
 <script>
 var tour = initializeTour("<s:property value="tourName" />");
-/* var vHeadingWidth;
-if(window.mobileScreen)
-	vHeadingWidth = '6.5%';
-else 
-	vHeadingWidth = '3%';
- $('.vertical-heading').css({width : vHeadingWidth});  */
 </script>
 <footer class="navbar-default row" style="padding-top:15px;">
 	<div class="row" style="text-align:center;">
@@ -23,7 +17,7 @@ else
 				 
 			</div>
 			<div class="row">
-				<a href="https://welfarecommunity.org/about">ABOUT US</a>
+				<a href="http://welfarecommunity.org/about">ABOUT US</a>
 				 | <a href="openContactUs.action?pageOwnerCode=432d637645f127785c9b5fd4fe106821">CONTACT US</a>
 				  | <a href="feedback.jsp" id="wc-feedback">FEEDBACK</a> 
 			</div>

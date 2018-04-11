@@ -16,9 +16,7 @@
 <meta property="og:type"          content="website" />
 <meta property="og:title"         content="<s:property value="eventBean.name" />, an event by <s:property value="organizerName"/>" />
 <meta property="og:description"   content="<s:property value="eventBean.evtTime"/>, 
-											 <s:property value="%{eventBean.calendar.get(5)}"/> 
-											 <s:property value="%{eventBean.getCalendar().getDisplayName(2, 1, new java.util.Locale(\"en\"))}" />, 
-											 <s:property value="%{eventBean.getCalendar().get(1)}" /> | 
+											 <s:date name="eventBean.calendar.getTime()" format="dd/MMM/yyyy"  />| 
 											 <s:property value="eventBean.addressBean.city"/>, 
 											 <s:property value="eventBean.addressBean.state"/>" />
 <meta property="og:image"         content="<s:property value="eventBean.imageURL"/>" />
@@ -223,10 +221,9 @@
 				<div class="col-md-4 col-sm-4">
 					<div class="list-group">
 						 <div class="list-group-item active">
-						 	<span class="badge" style="float:left;"><s:property value="%{eventBean.calendar.get(5)}"/></span>&nbsp;
-						 	<s:property value="%{eventBean.getCalendar().getDisplayName(2, 1, new java.util.Locale(\"en\"))}" /> 
-						 	<s:property value="%{eventBean.getCalendar().get(1)}" />
+						 	<s:date name="eventBean.calendar.getTime()" format="dd/MMM/yyyy"  />
 						 </div>
+						 
 						 <div class="list-group-item">
 							<s:property value="eventBean.evtTime"/>
 						</div>
@@ -314,15 +311,16 @@
 	</s:if>
 					<s:if test="%{eventBean.listOfEventPhotos.size()>0}">
 		<div class="row" style="margin-bottom:25px;" id="event-photos-row">
-			    				<a href="<s:url action='getPhotos'>
+				 <div class="col-md-1 col-sm-1 col-xs-1 vertical-heading" style="height:151px;">
+		    			<a href="<s:url action='getPhotos'>
 				    						 <s:param name="eventId"><s:property value="eventBean.id"/></s:param>
 				    						 <s:param name="from">event</s:param>
 				    						 <s:param name="pageOwnerCode"><s:property value="pageOwnerCode"/></s:param>
-			    						  </s:url>" style="font-size:smaller; font-weight:lighter;" title="View All">
-				 <div class="col-md-1 col-sm-1 col-xs-1 vertical-heading">
-		    			P H O T O S
-			    		</div>
-	    	</a>
+			    						  </s:url>" title="View All">
+			    						  PHOTOS
+			    		</a>
+	    		</div>
+	    	
    			<div class="col-md-11 col-sm-11 col-xs-11">
     			<div  id="jssor_photos" style="position: relative; top: 0px; left: 0px; height: 150px; overflow: hidden; visibility: hidden;">
 			        <!-- Loading Screen -->

@@ -309,23 +309,18 @@ $( document ).ready( function ()	 {
 			if(window.mobileScreen)
 				$('.description-row').css("margin-top", "100px");
 			else
-				$('.description-row').css("margin-top", "380px");
+				$('.description-row').css("margin-top", "425px");
 		} else {
 			if(window.mobileScreen)
 				$('.description-row').css("margin-top", "50px");
 			else
-			$('.description-row').css("margin-top", "199px");
+				$('.description-row').css("margin-top", "199px");
 		}
 	</script>
 	</s:if>
 	<s:else>
 		<div class="row" style="height:54px;">..</div>
 	</s:else>
-	
-	
-	
-	
-	
 	<div class="modal fade" tabindex="-1" role="dialog" id="guestAppreciateDiv">
 	  <div class="modal-dialog">
 		<div class="modal-content">

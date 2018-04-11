@@ -87,71 +87,75 @@
 					 
 		<s:if test="%{pageOwnerBean.listOfCoverPhotos.size()>0}">
         <style>
-        	
-        	.parallax-window {
-			    
-			    background: transparent;
-			    position:absolute;
-			    top:50px;
-			    left:0px;
-			    border-radius:0px;
-				  }
-			.blueimp-gallery-carousel{
-				box-shadow : initial !important;
-	
-}
+			.parallax-window {
+				background: transparent;
+				position: absolute;
+				top: 50px;
+				left: 0px;
+				border-radius: 0px;
+				min-height: 500px;
+			}
+			.slideshow-imgs {
+				height : 500px;
+				width : 100%;
+				object-fit : cover;
+			}
+			.blueimp-gallery-carousel {
+				box-shadow: initial !important;
+			}
+			
 			#slides div {
-		 		border-radius:0px;
-}
-
-	  		
-        </style>
+				border-radius: 0px;
+			}
+		</style>
         <script src="./js/slick.min.js"></script>
-		  	
-	        	
-	            
-       <div class="parallax-window col-md-12 col-sm-12 col-xs-12" id="parallax-window">
-		  <div class="parallax-slider"> 
-	            
-             	
-	            
-	                       		
-				 
-		  	<div id="slides">
-				  <s:iterator value="pageOwnerBean.listOfCoverPhotos" >
-			    	<div><img class='slideshow-imgs' src="<s:property value="url" />"  alt="<s:property value="url" />" /></div>
-				    </s:iterator>
+
+
+
+		<div class="parallax-window col-md-12 col-sm-12 col-xs-12" id="parallax-window">
+			<div class="parallax-slider">
+				<div id="slides">
+					<s:iterator value="pageOwnerBean.listOfCoverPhotos">
+						<div>
+							<img class='slideshow-imgs' src="<s:property value="url" />" alt="<s:property value="url" />" />
+						</div>
+					</s:iterator>
 				</div>
-				</div>
-	        </div>
-	        
+			</div>
+		</div>
+
 		<script>
-		var prlxHeight = mobileScreen?'200px':'400px';
-		$('.parallax-window').css({'min-height': prlxHeight});
-		if(mobileScreen)
-			$('.slideshow-imgs').css({height:'200px', width:'100%', 'object-fit':'cover'});
-		else
-			$('.slideshow-imgs').css({height:'400px', width:'100%', 'object-fit':'cover'});
-		$(document).ready(function(){
-			$('#slides').on('init', function(slick){
-				$('.parallax-window').parallax({
-				    naturalWidth: 600,
-				    naturalHeight: 400,
-				    positionX : '59px',
-				    positionY : '0px'
-				  });
+			var prlxHeight = mobileScreen ? '200px' : '500px';
+			$('.parallax-window').css({
+				'min-height' : prlxHeight
+			});
+			if (mobileScreen)
+				$('.slideshow-imgs').css({
+					height : '200px',
+					width : '100%',
+					'object-fit' : 'cover'
 				});
-			$('#slides').slick({
-				  dots: false,
-				  accessibility:false,
-				  infinite: true,
-				  speed: 500,
-				  fade: true,
-				  autoplay:true,
-				  cssEase: 'linear',
-				  arrows: false
+
+			$(document).ready(function() {
+				$('#slides').on('init', function(slick) {
+					$('.parallax-window').parallax({
+						naturalWidth : 600,
+						naturalHeight : 500,
+						positionX : '59px',
+						positionY : '0px'
+					});
 				});
-		});
+				$('#slides').slick({
+					dots : false,
+					accessibility : false,
+					infinite : true,
+					speed : 500,
+					fade : true,
+					autoplay : true,
+					cssEase : 'linear',
+					arrows : false
+				});
+			});
 		</script>
 
 	     </s:if>
@@ -252,9 +256,7 @@
 													<hr class="no-margin" style="border-top: 1px solid #c3bcbc;">
 													<div class="row">
 													   	<p style="text-align: center; color:black;">
-														   	<span class="badge" ><s:property value="%{calendar.get(5)}"/></span>&nbsp;
-														 	<s:property value="%{calendar.getDisplayName(2, 1, new java.util.Locale(\"en\"))}" /> 
-														 	<s:property value="%{calendar.get(1)}" /></br>
+														   	<s:date name="calendar.getTime()" format="dd/MMM/yyyy"  /></br>
 														 	<s:property value="evtTime"/>
 														 </p>
 		     		</div>

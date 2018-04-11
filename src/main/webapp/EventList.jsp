@@ -104,10 +104,8 @@
 							</div>
 							    <div class="row">
 								<div class="col-md-6 col-sm-6 col-xs-12 pull-left">
-									   	<span class="badge" style="float:left;"><s:property value="%{calendar.get(5)}"/></span>&nbsp;
-									 	<s:property value="%{calendar.getDisplayName(2, 1, new java.util.Locale(\"en\"))}" /> 
-									 	<s:property value="%{calendar.get(1)}" /><br><s:property value="evtTime"/>
-									 </div>
+										<s:date name="calendar.getTime()" format="dd/MMM/yyyy"  />
+								 </div>
 								 <div class="col-md-6 col-sm-6 col-xs-12 pull-right">
 								   		<p style="text-align: right;"><s:property value="addressBean.city"/>, <s:property value="addressBean.state"/></p>
 								   	</div>
