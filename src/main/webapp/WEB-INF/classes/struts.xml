@@ -158,7 +158,14 @@
 			<interceptor-ref name="guestAuthStack"></interceptor-ref>
 			<result name="success">registration.jsp</result>
 		</action>
-
+		<action name="unsubscribePage" class="action.RegistrationAction" method="unsubscribePageAction">
+			<interceptor-ref name="guestAuthStack"></interceptor-ref>
+			<result name="success">unsubscribe.jsp</result>
+		</action>
+		<!-- <action name="unsubscribeAction" class="action.RegistrationAction" method="unsubscribeAction">
+			<interceptor-ref name="guestAuthStack"></interceptor-ref>
+			<result name="success">unsubscribe.jsp</result>
+		</action> -->
 
 		<action name="home" class="action.ProfileAction" method="home">
 			<interceptor-ref name="ownerAuthStack"></interceptor-ref>

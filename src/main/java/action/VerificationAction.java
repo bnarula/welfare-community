@@ -111,7 +111,7 @@ public class VerificationAction  extends ActionSupport {
 		passCode = passCode.substring(0,8);
 		verEmail = verEmail.replaceAll("%#verificationLink#%", ConfigConstants.get("ROOTURL")+"verifyNGO.action?userCode="+ngoUid+"&passcode="+passCode);
 		verEmail = verEmail.replaceAll("%#resendLink#%", ConfigConstants.get("ROOTURL")+"resendVerificationMail.action?userCode="+ngoUid);
-		MailUtil.sendMimeMessage(email, "Verify your account with Welfare Community", verEmail);
+		MailUtil.sendMimeMessage(Constants.MAIL_DOMAIN_ADMIN, email, "Verify your account with Welfare Community", verEmail);
 		return passCode;
 		
 	}
@@ -122,7 +122,7 @@ public class VerificationAction  extends ActionSupport {
 		String passCode = SecurityUtil.encrypt(""+randCode);
 		passCode = passCode.substring(0,8);
 		verEmail = verEmail.replaceAll("%#OTP#%", passCode);
-		MailUtil.sendMimeMessage(email, "Get access to your Welfare Community account", verEmail);
+		MailUtil.sendMimeMessage(Constants.MAIL_DOMAIN_ADMIN, email, "Get access to your Welfare Community account", verEmail);
 		return passCode;
 		
 	}

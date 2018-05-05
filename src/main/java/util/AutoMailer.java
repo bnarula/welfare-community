@@ -48,7 +48,7 @@ public class AutoMailer {
 				email = email.replaceAll("%#ngoAlias#%", rs.getString("ngo_alias"));
 					email = email.replaceAll("%#ngoUid#%", ngoUid);
 					System.out.println("Email designed, sending mail to "+name+" @ "+emailId);
-					MailUtil.sendMimeMessage(emailId, "A Network for Socially Responsible People", email);
+					MailUtil.sendMimeMessage(Constants.MAIL_DOMAIN_PROMO, emailId, "A Network for Socially Responsible People", email);
 					System.out.println("Email sent successfully...");
 					System.out.println("******************************************************\n\n");
 					fosLogs.write((sno+","+ngoUid+","+emailId+","+name+","+city+",1,-\n").getBytes());
@@ -77,7 +77,7 @@ public class AutoMailer {
 			email = AutoMailer.email;
 			email = email.replaceAll("%#ngoName#%", name);
 			System.out.println("Email designed, sending mail to " + name + " @ " + emailId);
-			MailUtil.sendMimeMessage(emailId, bcc, "A Network for Socially Responsible People", email);
+			MailUtil.sendMimeMessage(Constants.MAIL_DOMAIN_PROMO, emailId, bcc, "A Network for Socially Responsible People", email);
 			System.out.println("Email sent successfully...");
 			System.out.println("******************************************************\n\n");
 		} catch (SQLException sqle) {

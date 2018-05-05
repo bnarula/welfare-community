@@ -51,6 +51,21 @@ public class RegistrationDao {
 		stmt.close();
 		return result;
 	}
+	public static int unsubscribeUser(Connection con, Integer ngoUid) throws SQLException{
+		int mlId = -1;
+		PreparedStatement stmt = con.prepareStatement("update ml_member_table set unsubscribe=1 where ngo_uid = ? ");
+		stmt.setInt(1, ngoUid);
+		stmt.executeUpdate();
+		
+		stmt = con.prepareStatement("select ml_id, ngo_uid from ml_member_table where ngo_uid = ? ");
+		stmt.setInt(1, ngoUid);
+		ResultSet rs = stmt.executeQuery();
+		if(rs.next()){
+			mlId = rs.getInt("ml_id");
+		}
+		return mlId;
+		
+	}
 	   
 
 }

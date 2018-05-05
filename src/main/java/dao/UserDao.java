@@ -45,12 +45,23 @@ public class UserDao {
 	}
 
 	public static String getUserPassword(Connection con, String ngoEmail) throws SQLException {
-		// TODO Auto-generated method stub
 		String result = "";
 		Statement stmt=con.createStatement();
 		ResultSet rs=stmt.executeQuery("select usr_email, usr_password from users_table where usr_email='"+ngoEmail+"'");
 		if(rs.next())
 			result= rs.getString("usr_password");
+		else
+			result= "";
+		rs.close();
+		stmt.close();
+		return result;
+	}
+	public static String getUserEmail(Connection con, Integer ngoUid) throws SQLException {
+		String result = "";
+		Statement stmt=con.createStatement();
+		ResultSet rs=stmt.executeQuery("select usr_email, usr_uid from users_table where usr_uid="+ngoUid+"");
+		if(rs.next())
+			result= rs.getString("usr_email");
 		else
 			result= "";
 		rs.close();
@@ -100,7 +111,6 @@ public class UserDao {
 	}
 	public static Integer getUserId(Connection con, String email) throws SQLException{
 		PreparedStatement stmt = con.prepareStatement("select usr_uid, usr_email from users_table where usr_email=?");
-		//TODO
 		Integer result = 0;
 		stmt.setString(1, email);
 		ResultSet rs = stmt.executeQuery();

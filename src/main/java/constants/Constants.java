@@ -58,4 +58,7 @@ public class Constants {
 	public static final int DEFAULT_FEMALE_VOL_PHOTO_ID = 0;
 	public static final int DEFAULT_MALE_VOL_PHOTO_ID = 0;
 	
+	public static final String MAIL_DOMAIN_ADMIN = "admin";
+	public static final String MAIL_DOMAIN_PROMO = "promo";
+	
 }

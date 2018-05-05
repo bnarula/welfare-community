@@ -16,6 +16,7 @@ import com.google.gson.JsonObject;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -28,6 +29,7 @@ import com.sun.jersey.multipart.impl.MultiPartWriter;
 
 import beans.NgoBean;
 import config.DBConnection;
+import constants.ConfigConstants;
 import constants.Constants;
 import security.SecurityUtil;
 
@@ -57,7 +59,7 @@ public class MailUtil {
 	       queryParams.add("address", "foo@mailgun.net");
 	       return webResource.queryParams(queryParams).get(ClientResponse.class);
 	}
-	public static ClientResponse sendMimeMessage(String toEmail,  String subject, String msg) {
+	public static ClientResponse sendMimeMessage(String domain, String toEmail,  String subject, String msg) {
 	       Client client = Client.create();
 	       ClientConfig cc = new DefaultClientConfig();
 
@@ -65,9 +67,9 @@ public class MailUtil {
 	       client = Client.create(cc);
 	       client.addFilter(new HTTPBasicAuthFilter("api","key-dfef560674b4ec55206662779a98bc22"));
 	       final WebResource webResource =
-	               client.resource("https://api.mailgun.net/v3/welfarecommunity.org/"+"messages");
+	               client.resource("https://api.mailgun.net/v3/"+domain+".welfarecommunity.org/"+"messages");
 	       final FormDataMultiPart form = new FormDataMultiPart();
-	       form.field("from", "Welfare Community <postmaster@welfarecommunity.org>");
+	       form.field("from", "Welfare Community <postmaster@"+domain+".welfarecommunity.org>");
 	       form.field("to", toEmail);
 	       form.field("subject", subject);
 	       form.field("html", msg);
@@ -85,7 +87,7 @@ public class MailUtil {
 			t1.start();
 	       return null;
 	}
-	public static ClientResponse sendMimeMessage(String toEmail, String bcc, String subject, String msg) {
+	public static ClientResponse sendMimeMessage(String domain, String toEmail, String bcc, String subject, String msg) {
 	       Client client = Client.create();
 	       ClientConfig cc = new DefaultClientConfig();
 	       cc.getClasses().add(MultiPartWriter.class);
@@ -180,12 +182,23 @@ public class MailUtil {
 		}
 		
 	}
+	public static void unsubscribeUser(Integer mlId, String ngoEmail){
+		//DELETE /lists/<address>/members/<member_address>
+		String mlPrefix = "ml_";
+	    String mlSuffix = "@welfarecommunity.org";
+	    try {
+	    	HttpResponse <JsonNode> request = Unirest.put("https://api.mailgun.net/v3/lists/"+mlPrefix
+							+mlId+mlSuffix+"/members/"+ngoEmail)
+                    .basicAuth("api", "key-dfef560674b4ec55206662779a98bc22")
+                    .field("subscribed", false)
+                    .asJson();
+	    }
+	    catch(Exception e){
+	    	
+	    }
+		
+	}
 	public static void addUsersToMailingLists(){
-		/*Client client = Client.create();
-       ClientConfig cc = new DefaultClientConfig();
-       cc.getClasses().add(MultiPartWriter.class);
-       client = Client.create(cc);
-       client.addFilter(new HTTPBasicAuthFilter("api","key-dfef560674b4ec55206662779a98bc22"));*/
 	    Connection con = null;
 	    String mlPrefix = "ml_";
 	    String mlSuffic = "@welfarecommunity.org";
@@ -253,21 +266,33 @@ public class MailUtil {
 	    } 
 		
 	}
-	public static void main(String arg[]){
-		sendAutoMails();
+	public static void main(String arg[]) throws UnirestException{
+		//sendAutoMails();
+		editMLs();
 	}
 	public static void sendAutoMails() {
 		String msg = readMailHTML("autoMail");
-		sendMimeMessage("test@welfarecommunity.org", "Welcome to Welfare Community - your free social profile..", msg);
-		
+		msg = msg.replaceAll("%#rootUrl#%", ConfigConstants.get("rooturl"));
+		sendMimeMessage(Constants.MAIL_DOMAIN_PROMO, "test@promo.welfarecommunity.org", "Welcome to Welfare Community - your free social profile..", msg);
 	}
 	public static void sendAccountDetails(NgoBean ngoBean, String password) {
 		String msg = readMailHTML("accountDetailsMail");
 		msg = msg.replaceAll("%#ngoName#%", ngoBean.getNgoName());
 		msg = msg.replaceAll("%#email#%", ngoBean.getNgoEmail());
 		msg = msg.replaceAll("%#password#%", password);
-		sendMimeMessage(ngoBean.getNgoEmail(), "Account Details for Welfare Community", msg);
+		sendMimeMessage(Constants.MAIL_DOMAIN_ADMIN, ngoBean.getNgoEmail(), "Account Details for Welfare Community", msg);
 		
+	}
+	public static void editMLs() throws UnirestException{
+		 String mlPrefix = "ml_";
+		 String mlSuffix = "@welfarecommunity.org";
+		 String newMlSuffix = "@promo.welfarecommunity.org";
+		for(int i = 1; i<=15; i++){
+			HttpResponse <JsonNode> request = Unirest.put("https://api.mailgun.net/v3/lists/"+mlPrefix+i+mlSuffix)
+		            .basicAuth("api", "key-dfef560674b4ec55206662779a98bc22")
+		            .field("address", mlPrefix+i+newMlSuffix)
+		            .asJson();
+		}
 	}
 	    
 }

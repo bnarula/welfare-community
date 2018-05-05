@@ -70,7 +70,7 @@ public class VolunteerAction extends ActionSupport {
 				strEmail = strEmail.replaceAll("%#ngoPhone#%", ngoBean.getNgoPhone());
 				strEmail = strEmail.replaceAll("%#ngoName#%", 
 						"<a href=\""+ConfigConstants.get("ROOTURL")+ngoBean.getAlias()+"\" title=\""+ngoBean.getNgoName()+"\">"+ngoBean.getNgoName()+"</a>");
-				MailUtil.sendMimeMessage(volunteerBean.getEmail(), "Volunteer Application", strEmail);
+				MailUtil.sendMimeMessage(Constants.MAIL_DOMAIN_ADMIN, volunteerBean.getEmail(), "Volunteer Application", strEmail);
 				conn.commit();
 				return ResultConstants.SUCCESS;
 			}

@@ -67,7 +67,7 @@ public class ApplicationAction {
 				strEmail = strEmail.replaceAll("%#ngoPhone#%", ngoBean.getNgoPhone());
 				strEmail = strEmail.replaceAll("%#ngoName#%", 
 						"<a href=\"https://welfarecommunity.org/"+ngoBean.getAlias()+"\" title=\""+ngoBean.getNgoName()+"\">"+ngoBean.getNgoName()+"</a>");
-				MailUtil.sendMimeMessage(vb.getEmail(), "Volunteer Application at Welfare Community", strEmail);
+				MailUtil.sendMimeMessage(Constants.MAIL_DOMAIN_ADMIN, vb.getEmail(), "Volunteer Application at Welfare Community", strEmail);
 				setPageOwnerCode(pageOwnerCode);
 			}
 		} catch (SQLException e) {
@@ -99,7 +99,7 @@ public class ApplicationAction {
 				strEmail = strEmail.replaceAll("%#ngoPhone#%", ngoBean.getNgoPhone());
 				strEmail = strEmail.replaceAll("%#ngoName#%", 
 						"<a href=\"https://welfarecommunity.org/"+ngoBean.getAlias()+"\" title=\""+ngoBean.getNgoName()+"\">"+ngoBean.getNgoName()+"</a>");
-				MailUtil.sendMimeMessage(vb.getEmail(), "Volunteer Application at Welfare Community", strEmail);
+				MailUtil.sendMimeMessage(Constants.MAIL_DOMAIN_ADMIN, vb.getEmail(), "Volunteer Application at Welfare Community", strEmail);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
